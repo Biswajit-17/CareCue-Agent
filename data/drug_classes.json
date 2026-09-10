@@ -1,0 +1,205 @@
+{
+  "_metadata": {
+    "version": "1.0.0",
+    "description": "Drug class reference for CareCue conflict detection. Cross-checked against WHO ATC classification and NIH RxClass. Scoped to medications relevant to elderly care and commonly available in India.",
+    "sources": [
+      "WHO ATC/DDD Index (https://atcddd.fhi.no/)",
+      "NIH RxClass (https://mor.nlm.nih.gov/RxClass/)",
+      "1mg.com (Indian pharmacy reference)"
+    ],
+    "last_verified": "2026-09-10"
+  },
+  "drug_classes": {
+    "statin": {
+      "label": "Statins (Cholesterol)",
+      "atc_code": "C10AA",
+      "description": "Lower cholesterol by blocking liver enzyme. Taking two statins together increases risk of muscle side effects.",
+      "generics": ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin", "lovastatin", "fluvastatin", "pitavastatin"],
+      "india_brands": {
+        "atorvastatin": ["Atorva", "Lipitor", "Storvas", "Atocor"],
+        "simvastatin": ["Zocor", "Simvotin", "Simgal"],
+        "rosuvastatin": ["Crestor", "Rozavel", "Rosuvas", "Storcept"],
+        "pravastatin": ["Pravachol", "Lipostat"]
+      },
+      "source": "WHO ATC C10AA / RxClass Pharmacologic: HMG-CoA Reductase Inhibitors"
+    },
+    "ace_inhibitor": {
+      "label": "ACE Inhibitors (Blood Pressure)",
+      "atc_code": "C09AA",
+      "description": "Lower blood pressure by relaxing blood vessels. Taking two ACE inhibitors together can cause dangerously low blood pressure and kidney problems.",
+      "generics": ["lisinopril", "enalapril", "ramipril", "captopril", "benazepril", "perindopril", "quinapril", "fosinopril", "trandolapril"],
+      "india_brands": {
+        "lisinopril": ["Lisnop", "Zestril", "Prinivil"],
+        "enalapril": ["Enam", "Renitec", "Invoril"],
+        "ramipril": ["Cardace", "Ramistar", "Hope"],
+        "captopril": ["Capoten", "Captopril"]
+      },
+      "source": "WHO ATC C09AA / RxClass Pharmacologic: ACE Inhibitors"
+    },
+    "arb": {
+      "label": "ARBs (Blood Pressure)",
+      "atc_code": "C09CA",
+      "description": "Lower blood pressure by blocking a chemical that tightens blood vessels. Taking two ARBs together or with an ACE inhibitor increases kidney risk.",
+      "generics": ["losartan", "valsartan", "irbesartan", "olmesartan", "telmisartan", "candesartan", "eprosartan", "azilsartan"],
+      "india_brands": {
+        "losartan": ["Losar", "Repace", "Losakind", "Covance"],
+        "valsartan": ["Valsartan", "Diovan", "Valzaar"],
+        "telmisartan": ["Telma", "Telday", "Telsartan"],
+        "olmesartan": ["Olmy", "Olmestran", "Benicar"]
+      },
+      "source": "WHO ATC C09CA / RxClass Pharmacologic: Angiotensin II Receptor Blockers"
+    },
+    "ace_inhibitor_or_arb": {
+      "label": "ACE Inhibitors and ARBs (Blood Pressure)",
+      "atc_code": "C09A",
+      "description": "Both ACE inhibitors and ARBs lower blood pressure through related pathways. Combining them increases risk of kidney problems and high potassium.",
+      "generics": ["lisinopril", "enalapril", "ramipril", "captopril", "benazepril", "perindopril", "losartan", "valsartan", "irbesartan", "olmesartan", "telmisartan", "candesartan"],
+      "source": "WHO ATC C09 / RxClass Pharmacologic: Renin-Angiotensin System"
+    },
+    "beta_blocker": {
+      "label": "Beta Blockers (Heart/Blood Pressure)",
+      "atc_code": "C07A",
+      "description": "Slow heart rate and lower blood pressure. Taking multiple beta blockers together can cause dangerously slow heart rate and low blood pressure.",
+      "generics": ["metoprolol", "atenolol", "propranolol", "bisoprolol", "carvedilol", "nebivolol", "sotalol", "labetalol", "betaxolol"],
+      "india_brands": {
+        "metoprolol": ["Met XL", "Betaloc", "Lopressor", "Metolar"],
+        "atenolol": ["Aten", "Atenol", "Tenormin"],
+        "propranolol": ["Inderal", "Propranolol", "Progbeta"],
+        "bisoprolol": ["Bisogen", "Cardicor", "Biso"],
+        "carvedilol": ["Carvedilol", "Carvipress", "Kaprin"]
+      },
+      "source": "WHO ATC C07AA+C07AB+C07AG / RxClass Pharmacologic: Beta Adrenergic Blockers"
+    },
+    "diuretic": {
+      "label": "Diuretics (Water Pills)",
+      "atc_code": "C03",
+      "description": "Help the body remove excess water and salt. Combining different diuretics or with ACE inhibitors/ARBs can cause dehydration and electrolyte problems.",
+      "generics": ["hydrochlorothiazide", "furosemide", "spironolactone", "chlorthalidone", "torsemide", "bumetanide", "amiloride", "triamterene", "indapamide"],
+      "india_brands": {
+        "hydrochlorothiazide": ["Hydrazide", "Esidrix", "Hydrodiuril"],
+        "furosemide": ["Lasix", "Frusenex", "Frusemide"],
+        "spironolactone": ["Aldactone", "Spiractin", "Spironol"]
+      },
+      "source": "WHO ATC C03 / RxClass Pharmacologic: Diuretics"
+    },
+    "calcium_channel_blocker": {
+      "label": "Calcium Channel Blockers (Blood Pressure)",
+      "atc_code": "C08CA",
+      "description": "Lower blood pressure by relaxing blood vessel walls. Combining with beta blockers can cause heart rhythm problems.",
+      "generics": ["amlodipine", "nifedipine", "felodipine", "diltiazem", "verapamil", "nicardipine", "nimodipine", "lacidipine", "lercanidipine"],
+      "india_brands": {
+        "amlodipine": ["Amlodac", "Amlovas", "Stamlo", "Amlong"],
+        "nifedipine": ["Nifedipine", "Adalat", "Nifedat"],
+        "diltiazem": ["Diltiazem", "Dilzem", "Tiazac"],
+        "verapamil": ["Verapamil", "Calan", "Isoptin"]
+      },
+      "source": "WHO ATC C08CA / RxClass Pharmacologic: Calcium Channel Blocking Agents"
+    },
+    "thiazide_diuretic": {
+      "label": "Thiazide Diuretics (Water Pills)",
+      "atc_code": "C03AA",
+      "description": "A specific type of water pill. Combining with other diuretics can cause electrolyte imbalances.",
+      "generics": ["hydrochlorothiazide", "chlorthalidone", "indapamide", "metolazone", "bendroflumethiazide"],
+      "source": "WHO ATC C03AA / RxClass Pharmacologic: Thiazides"
+    },
+    "loop_diuretic": {
+      "label": "Loop Diuretics (Strong Water Pills)",
+      "atc_code": "C03C",
+      "description": "Stronger water pills used for fluid retention. Combining with thiazides or ACE inhibitors/ARBs can cause dehydration.",
+      "generics": ["furosemide", "torsemide", "bumetanide", "ethacrynic acid"],
+      "source": "WHO ATC C03C / RxClass Pharmacologic: Loop Diuretics"
+    },
+    "anticoagulant": {
+      "label": "Blood Thinners (Anticoagulants)",
+      "atc_code": "B01AA",
+      "description": "Prevent blood clots. Combining multiple blood thinners greatly increases bleeding risk.",
+      "generics": ["warfarin", "acenocoumarol", "phenprocoumon"],
+      "india_brands": {
+        "warfarin": ["Waran", "Warfarin", "Coumadin"],
+        "acenocoumarol": ["Sintrom", "Nicoumalone"]
+      },
+      "source": "WHO ATC B01AA / RxClass Pharmacologic: Vitamin K Antagonists"
+    },
+    "antiplatelet": {
+      "label": "Platelet Blockers (Antiplatelet)",
+      "atc_code": "B01AC",
+      "description": "Prevent blood clots by stopping platelets from sticking together. Combining two antiplatelets or with anticoagulants increases bleeding risk.",
+      "generics": ["clopidogrel", "aspirin", "ticagrelor", "prasugrel", "dipyridamole", "ticlopidine", "cilostazol"],
+      "india_brands": {
+        "clopidogrel": ["Clopilet", "Plavix", "Clopitab"],
+        "aspirin": ["Disprin", "Ecosprin", "Aspirin"],
+        "ticagrelor": ["Brilinta", "Brilique"]
+      },
+      "source": "WHO ATC B01AC / RxClass Pharmacologic: Platelet Aggregation Inhibitors"
+    },
+    "anticoagulant_or_antiplatelet": {
+      "label": "Blood Thinners (Anticoagulants and Antiplatelets)",
+      "atc_code": "B01",
+      "description": "All blood-thinning medications. Combining any of these significantly increases bleeding risk.",
+      "generics": ["warfarin", "acenocoumarol", "clopidogrel", "aspirin", "ticagrelor", "prasugrel", "dipyridamole", "rivaroxaban", "apixaban", "dabigatran", "edoxaban"],
+      "source": "WHO ATC B01 / RxClass Pharmacologic: Antithrombotic Agents"
+    },
+    "thyroid_hormone": {
+      "label": "Thyroid Hormones",
+      "atc_code": "H03AA",
+      "description": "Replace or supplement thyroid hormone. Taking two thyroid hormones together can cause hyperthyroid symptoms.",
+      "generics": ["levothyroxine", "liothyronine", "thyroid extract"],
+      "india_brands": {
+        "levothyroxine": ["Thyrox", "Eltroxin", "Thyronorm", "Opiprol"]
+      },
+      "source": "WHO ATC H03AA / RxClass Pharmacologic: Thyroid Hormones"
+    },
+    "proton_pump_inhibitor": {
+      "label": "Proton Pump Inhibitors (Stomach Acid Reducers)",
+      "atc_code": "A02BC",
+      "description": "Reduce stomach acid. Taking two PPIs together provides no added benefit and may increase side effects.",
+      "generics": ["omeprazole", "pantoprazole", "lansoprazole", "rabeprazole", "esomeprazole", "dexlansoprazole"],
+      "india_brands": {
+        "omeprazole": ["Omez", "Omid", "Omeprazole"],
+        "pantoprazole": ["Pantocid", "Pantodac", "Pan"],
+        "lansoprazole": ["Lanso", "Lanzol", "Lapraz"],
+        "rabeprazole": ["Rabecid", "Razo", "Rabeproz"]
+      },
+      "source": "WHO ATC A02BC / RxClass Pharmacologic: Proton Pump Inhibitors"
+    },
+    "biguanide": {
+      "label": "Biguanides (Diabetes - Metformin)",
+      "atc_code": "A10BA",
+      "description": "Lower blood sugar by reducing liver glucose production. Taking two biguanides increases risk of lactic acidosis.",
+      "generics": ["metformin"],
+      "india_brands": {
+        "metformin": ["Glycomet", "Glyciphage", "Gluconorm", "Gluformin", "Metform", "Obimet"]
+      },
+      "source": "WHO ATC A10BA / RxClass Pharmacologic: Biguanides"
+    },
+    "sulfonylurea": {
+      "label": "Sulfonylureas (Diabetes - Insulin Stimulators)",
+      "atc_code": "A10BB",
+      "description": "Lower blood sugar by making the pancreas produce more insulin. Taking two sulfonylureas together increases hypoglycemia risk.",
+      "generics": ["gliclazide", "glimepiride", "glibenclamide", "glipizide", "gliquidone"],
+      "india_brands": {
+        "gliclazide": ["Glyclogen", "Glyzed", "Zoryl"],
+        "glimepiride": ["Amaryl", "Glimid", "Glimiprex"],
+        "glibenclamide": ["Daonil", "Glybenclamide"]
+      },
+      "source": "WHO ATC A10BB / RxClass Pharmacologic: Sulfonylureas"
+    },
+    "antidiabetic": {
+      "label": "Diabetes Medicines (All Oral)",
+      "atc_code": "A10B",
+      "description": "All oral diabetes medications. Combining multiple classes can increase hypoglycemia risk.",
+      "generics": ["metformin", "gliclazide", "glimepiride", "glibenclamide", "glipizide", "pioglitazone", "sitagliptin", "empagliflozin", "dapagliflozin", "canagliflozin", "vildagliptin", "saxagliptin", "linagliptin", "repaglinide", "nateglinide"],
+      "source": "WHO ATC A10B / RxClass Pharmacologic: Blood Glucose Lowering Drugs"
+    },
+    "levodopa": {
+      "label": "Levodopa (Parkinson's)",
+      "atc_code": "N04BA",
+      "description": "Replace dopamine in the brain for Parkinson's disease. Taking two levodopa combinations can worsen side effects.",
+      "generics": ["levodopa", "carbidopa-levodopa", "benserazide-levodopa"],
+      "india_brands": {
+        "carbidopa-levodopa": ["Syndopa", "Levodopa", "Cbdoa"]
+      },
+      "source": "WHO ATC N04BA / RxClass Pharmacologic: Dopamine Agonists"
+    }
+  }
+}
