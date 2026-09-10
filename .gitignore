@@ -40,3 +40,11 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+# Dev/debug scripts (one-off, not part of app)
+check_*.py
+test_delete.py
+
+# Project config (not needed in repo)
+opencode.json
+PLAN.md
