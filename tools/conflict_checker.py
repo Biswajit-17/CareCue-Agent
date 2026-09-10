@@ -1,11 +1,42 @@
 """Conflict Checker Tool - Cross-references prescriptions for conflicts."""
 
+import json
+import os
 from typing import Any
 from collections import defaultdict
 from strands import tool
 
 from data.repository import get_repository
 from data.models import Prescription, Doctor
+
+# Load drug classes from JSON reference file
+_DRUG_CLASSES_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "drug_classes.json")
+
+def _load_drug_classes() -> dict:
+    """Load drug class patterns from the JSON reference file."""
+    try:
+        with open(_DRUG_CLASSES_PATH, "r") as f:
+            data = json.load(f)
+        # Build a flat map: class_name -> list of generics
+        classes = {}
+        for key, info in data.get("drug_classes", {}).items():
+            # Skip composite classes that reference other classes
+            if key in ("ace_inhibitor_or_arb", "anticoagulant_or_antiplatelet", "antidiabetic"):
+                continue
+            classes[key] = info.get("generics", [])
+        return classes
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Fallback to minimal defaults if JSON is missing
+        return {
+            "statin": ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin", "lovastatin"],
+            "ace_inhibitor": ["lisinopril", "enalapril", "ramipril", "captopril", "benazepril"],
+            "arb": ["losartan", "valsartan", "irbesartan", "olmesartan", "telmisartan"],
+            "beta_blocker": ["metoprolol", "atenolol", "propranolol", "bisoprolol", "carvedilol"],
+            "diuretic": ["hydrochlorothiazide", "furosemide", "spironolactone", "chlorthalidone"],
+            "levodopa": ["carbidopa-levodopa", "levodopa"],
+        }
+
+_THERAPEUTIC_PATTERNS = _load_drug_classes()
 
 
 @tool
@@ -98,15 +129,8 @@ def conflict_checker(patient_id: str) -> dict[str, Any]:
                     })
     
     # 3. Basic therapeutic class overlap (using common patterns) - only across DIFFERENT doctors
-    # This is a simplified heuristic - real implementation would use RxNorm/NDC
-    therapeutic_patterns = {
-        "statin": ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin", "lovastatin"],
-        "ace_inhibitor": ["lisinopril", "enalapril", "ramipril", "captopril", "benazepril"],
-        "arb": ["losartan", "valsartan", "irbesartan", "olmesartan", "telmisartan"],
-        "beta_blocker": ["metoprolol", "atenolol", "propranolol", "carvedilol", "bisoprolol"],
-        "diuretic": ["hydrochlorothiazide", "furosemide", "spironolactone", "chlorthalidone"],
-        "levodopa": ["carbidopa-levodopa", "levodopa"],
-    }
+    # Loaded from data/drug_classes.json - cross-checked against WHO ATC / RxClass
+    therapeutic_patterns = _THERAPEUTIC_PATTERNS
     
     rx_by_class = defaultdict(list)
     for rx in prescriptions:

@@ -569,7 +569,8 @@ function renderStats(data) {
             if (rx.is_refill_overdue) topItems.push({ t: 'overdue', med: `${rx.medication_name} ${rx.strength}`, who: p.patient.name, when: rx.next_refill_due ? formatDate(rx.next_refill_due) : 'due' });
         });
         (p.conflicts || []).slice(0, 2).forEach(c => {
-            topItems.push({ t: 'conflict', med: conflictTypeLabel(c.type), who: p.patient.name, when: c.severity });
+            const medNames = (c.medications || []).join(' + ');
+            topItems.push({ t: 'conflict', med: medNames || conflictTypeLabel(c.type), who: p.patient.name, when: c.severity });
         });
     });
     const shown = topItems.slice(0, 3);

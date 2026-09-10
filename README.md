@@ -130,17 +130,40 @@ python main.py --once
 - **Unrecognized replies**: auto-responds with "Sorry, reply YES or NO."
 - **Patient linking**: each patient gets a unique linking code. They send `/start <CODE>` to the bot once to connect their Telegram account.
 
+## Drug Class Reference
+
+Drug class groupings in `data/drug_classes.json` are cross-checked against WHO ATC classification and NIH RxClass, scoped to medications relevant to elderly care and commonly available in India. This is a curated reference for demonstration purposes, not a comprehensive or clinical-grade drug database.
+
+**Coverage includes:**
+- Statins (cholesterol)
+- ACE Inhibitors, ARBs, Beta Blockers, Calcium Channel Blockers (blood pressure)
+- Thiazide and Loop Diuretics (water pills)
+- Anticoagulants and Antiplatelets (blood thinners)
+- Thyroid Hormones
+- Proton Pump Inhibitors (stomach acid)
+- Biguanides and Sulfonylureas (diabetes)
+- Levodopa (Parkinson's)
+
+**Sources:** WHO ATC/DDD Index, NIH RxClass, 1mg.com (Indian pharmacy reference)
+
 ## Architecture
+
+![CareCue Architecture](docs/architecture.png)
+
+> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram — webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer.*
 
 | Layer | Technology | File |
 |-------|-----------|------|
-| Agent | Strands SDK + OpenRouter | `agent/core.py` |
+| Agent | Strands SDK + OpenRouter (Claude Sonnet) | `agent/core.py` |
 | Tools | refill_tracker, conflict_checker, dose_reminder_sender, notifier, dose_pattern_checker, refill_drafter | `tools/` |
-| API | FastAPI | `ui/api.py` |
+| Drug Reference | 15 WHO ATC-verified drug classes | `data/drug_classes.json` |
+| API | FastAPI + Telegram webhook | `ui/api.py` |
 | Frontend | Vanilla JS, Figtree/Noto Sans | `ui/static/` |
 | Database | SQLite | `data/carecue.db` |
 | Scheduler | `schedule` library | `scheduler.py` |
-| Messaging | Telegram Bot API | `tools/dose_reminder_sender.py` |
+| Messaging | Telegram Bot API + Gmail SMTP | `tools/` |
+
+Full architecture diagram: [docs/architecture.md](docs/architecture.md)
 
 ## CLI Usage
 
