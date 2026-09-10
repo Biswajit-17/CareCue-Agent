@@ -72,7 +72,7 @@ You should get: `{"ok":true,"result":...,"description":"Webhook was set"}`
    /start A1B2C3D4
    ```
    to `@CareCueBot` (replace `A1B2C3D4` with the code shown)
-5. The bot replies: "Linked! You will now receive dose reminders for Meenakshi."
+5. The bot replies: "Linked! You will now receive dose reminders for <Patient_name>."
 
 ### 9. Test the flow
 
