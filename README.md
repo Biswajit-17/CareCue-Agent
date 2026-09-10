@@ -148,7 +148,7 @@ Drug class groupings in `data/drug_classes.json` are cross-checked against WHO A
 
 ## Architecture
 
-![CareCue Architecture](docs/architecture.png)
+![CareCue Architecture](docs/architecture.md)
 
 > *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram — webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer.*
 
