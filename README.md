@@ -147,7 +147,7 @@ Drug class groupings in `data/drug_classes.json` are cross-checked against WHO A
 **Sources:** WHO ATC/DDD Index, NIH RxClass, 1mg.com (Indian pharmacy reference)
 
 ## Architecture
-
+```mermaid
 flowchart TB
     subgraph External["External Services"]
         direction LR
@@ -271,7 +271,7 @@ flowchart TB
     class FASTAPI,REST,WEBHOOK,LINK api
     class HTML,CSS,JS frontend
     class SCHED scheduler
-
+```
 
 > *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram — webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer.*
 
