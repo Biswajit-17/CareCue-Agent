@@ -1,4 +1,4 @@
-# CareCue — Medication Logistics Agent
+# CareCue - Medication Logistics Agent
 
 CareCue tracks prescriptions, detects conflicts, monitors adherence, and sends Telegram reminders for Indian-context elderly care. Patients confirm doses by replying YES or NO directly on Telegram — no links, no dashboard, no app.
 
