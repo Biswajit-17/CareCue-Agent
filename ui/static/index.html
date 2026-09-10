@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>CareCue - Medication Logistics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/styles.css?v=5">
+    <script>
+    try {
+        var t = localStorage.getItem('carecue-theme');
+        if (!t) { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark'; }
+        document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = 'dark'; }
+    </script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="app">
+        <!-- Primary navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand"><i data-lucide="pill" class="logo-icon" aria-hidden="true"></i><span class="brand-name">CareCue</span></div>
+                <p class="tagline">Medication Logistics</p>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebar-nav" aria-label="Primary">
+                <a href="#dashboard" class="nav-item" data-view="dashboard">
+                    <span class="nav-icon" aria-hidden="true"><i data-lucide="layout-dashboard"></i></span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                <a href="#patients" class="nav-item" data-view="patients">
+                    <span class="nav-icon" aria-hidden="true"><i data-lucide="users"></i></span>
+                    <span class="nav-label">Patients</span>
+                </a>
+                <a href="#medications" class="nav-item" data-view="medications">
+                    <span class="nav-icon" aria-hidden="true"><i data-lucide="pill"></i></span>
+                    <span class="nav-label">Medications</span>
+                </a>
+                <a href="#doctors" class="nav-item" data-view="doctors">
+                    <span class="nav-icon" aria-hidden="true"><i data-lucide="stethoscope"></i></span>
+                    <span class="nav-label">Doctors</span>
+                </a>
+                <a href="#pharmacies" class="nav-item" data-view="pharmacies">
+                    <span class="nav-icon" aria-hidden="true"><i data-lucide="store"></i></span>
+                    <span class="nav-label">Pharmacies</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-divider" aria-hidden="true"></div>
+
+            <div class="caregiver-selector">
+                <label for="caregiver-select">Active Caregiver</label>
+                <select id="caregiver-select" disabled>
+                    <option value="">Loading...</option>
+                </select>
+                <div class="caregiver-info" id="caregiver-info" style="display: none;">
+                    <div class="info-row"><span class="label">Email:</span> <span id="caregiver-email"></span></div>
+                    <div class="info-row"><span class="label">Timezone:</span> <span id="caregiver-timezone"></span></div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <span class="version">v1.0.0</span>
+            </div>
+        </aside>
+
+        <main class="main-content" id="main-content" tabindex="-1">
+            <header class="top-bar">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="top-bar-actions">
+                    <button class="icon-btn" id="theme-toggle" aria-label="Switch to light mode" title="Switch to light mode"><i data-lucide="sun" aria-hidden="true"></i></button>
+                    <button class="btn btn-primary" id="add-btn" style="display: none;"></button>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view" data-view="dashboard" aria-label="Dashboard">
+                <div class="cue-wrap">
+                    <header class="cue-pagehead">
+                        <div>
+                            <p class="cue-eyebrow" id="cue-eyebrow">Daily check</p>
+                            <h2 class="cue-title" id="cue-title">What needs your attention</h2>
+                            <p class="cue-sub" id="cue-sub">Showing only things that need action.</p>
+                        </div>
+                        <div class="cue-pagehead-side">
+                            <div class="cue-date" id="cue-date"></div>
+                        </div>
+                    </header>
+                    <div id="stats-grid" class="cue-summary" aria-live="polite"></div>
+                    <div class="cue-board-head">
+                        <h3 class="cue-board-title">Patients</h3>
+                        <p class="cue-board-sub" id="cue-board-sub">Priority-ordered - urgent first</p>
+                    </div>
+                    <div id="patients-grid" class="cue-board"></div>
+                </div>
+            </section>
+
+            <!-- Patients View -->
+            <section id="patients-view" class="view" data-view="patients" aria-label="Patients">
+                <div class="view-header">
+                    <h2>Patients</h2>
+                    <button class="btn btn-primary" onclick="openModal('patient-modal')">Add Patient</button>
+                </div>
+                <div class="list-container" id="patients-list" aria-live="polite"></div>
+            </section>
+
+            <!-- Medications View — global, cross-patient, read-only -->
+            <section id="medications-view" class="view" data-view="medications" aria-label="All medications">
+                <div class="view-header">
+                    <h2>All Medications</h2>
+                    <p class="view-sub" id="meds-summary-line">Across all patients, sorted by urgency</p>
+                </div>
+                <div class="meds-filters" role="search" aria-label="Filter medications">
+                    <div class="form-group meds-filter-group">
+                        <label for="meds-filter-patient">Patient</label>
+                        <select id="meds-filter-patient"></select>
+                    </div>
+                    <div class="form-group meds-filter-group">
+                        <label for="meds-filter-status">Status</label>
+                        <select id="meds-filter-status">
+                            <option value="all">All</option>
+                            <option value="overdue">Overdue</option>
+                            <option value="due-soon">Due Soon</option>
+                            <option value="ok">OK</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="list-container" id="medications-list" aria-live="polite"></div>
+            </section>
+
+            <!-- Patient Medications Detail — per-patient Manage Meds (add/edit here) -->
+            <section id="patient-meds-view" class="view" data-view="patient-meds" aria-label="Manage medications">
+                <div class="view-header">
+                    <h2 id="patient-meds-name">Medications</h2>
+                    <button class="btn btn-secondary" onclick="navigateTo('patients')">← Back to Patients</button>
+                    <button class="btn btn-primary" onclick="openPrescriptionModalForAdd()">Add Prescription</button>
+                </div>
+                <div id="telegram-link-section" style="display:none; margin-bottom: var(--sp-4); padding: var(--sp-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--r-lg);"></div>
+                <div class="list-container" id="patient-meds-list" aria-live="polite"></div>
+            </section>
+
+            <!-- Doctors View -->
+            <section id="doctors-view" class="view" data-view="doctors" aria-label="Doctors">
+                <div class="view-header">
+                    <h2>Doctors</h2>
+                    <button class="btn btn-primary" onclick="openModal('doctor-modal')">Add Doctor</button>
+                </div>
+                <div class="list-container" id="doctors-list" aria-live="polite"></div>
+            </section>
+
+            <!-- Pharmacies View -->
+            <section id="pharmacies-view" class="view" data-view="pharmacies" aria-label="Pharmacies">
+                <div class="view-header">
+                    <h2 id="pharmacy-patient-name">Pharmacies</h2>
+                    <button class="btn btn-secondary" onclick="navigateTo('patients')">← Back to Patients</button>
+                    <button class="btn btn-primary" onclick="loadPharmacyDropdowns().then(() => openModal('pharmacy-modal'))">Add Pharmacy</button>
+                </div>
+                <div class="list-container" id="pharmacies-list" aria-live="polite"></div>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)"></div>
+
+    <div class="toast-container" id="toast-container" role="status" aria-live="polite"></div>
+
+    <div class="modal modal-confirm" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+        <div class="modal-header">
+            <h2 id="confirm-title"><i data-lucide="alert-triangle" class="modal-title-icon" aria-hidden="true"></i> Confirm Action</h2>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close dialog"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="modal-body">
+            <p id="confirm-message">Are you sure?</p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirm-ok">Confirm</button>
+        </div>
+    </div>
+
+    <div class="modal modal-alert" id="alert-modal" role="dialog" aria-modal="true" aria-labelledby="alert-title">
+        <div class="modal-header">
+            <h2 id="alert-title"><i data-lucide="bell" class="modal-title-icon" aria-hidden="true"></i> Notification</h2>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close dialog"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="modal-body">
+            <p id="alert-message"></p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <div class="modal" id="patient-modal" role="dialog" aria-modal="true" aria-labelledby="patient-modal-title">
+        <div class="modal-header">
+            <h2 id="patient-modal-title"><i data-lucide="user-plus" class="modal-title-icon" aria-hidden="true"></i> Add Patient</h2>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close dialog"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <form id="patient-form" class="modal-form" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-patient-name">Patient Name *</label>
+                    <input type="text" id="f-patient-name" name="name" required autocomplete="off">
+                    <span class="error-message" data-for="name"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-patient-dob">Date of Birth *</label>
+                    <input type="date" id="f-patient-dob" name="date_of_birth" required>
+                    <span class="error-message" data-for="date_of_birth"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="f-patient-phone">Phone Number</label>
+                <input type="tel" id="f-patient-phone" name="phone" autocomplete="off" maxlength="10" pattern="\d{10}" inputmode="numeric">
+                <span class="error-message" data-for="phone"></span>
+            </div>
+            <div class="form-group">
+                <label for="f-patient-notes">Notes</label>
+                <textarea id="f-patient-notes" name="notes" placeholder="Lives independently, mild hypertension history"></textarea>
+                <span class="error-message" data-for="notes" style="display:none"></span>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Patient</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal modal-large" id="prescription-modal" role="dialog" aria-modal="true" aria-labelledby="prescription-modal-title-text">
+        <div class="modal-header">
+            <h2><i data-lucide="pill" class="modal-title-icon" aria-hidden="true"></i> <span id="prescription-modal-title-text">Add Prescription</span></h2>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close dialog"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <form id="prescription-form" class="modal-form" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-rx-name">Medication Name *</label>
+                    <input type="text" id="f-rx-name" name="medication_name" required placeholder="Telma 40">
+                    <span class="error-message" data-for="medication_name"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-rx-generic">Generic Name</label>
+                    <input type="text" id="f-rx-generic" name="generic_name" placeholder="Telmisartan">
+                    <span class="error-message" data-for="generic_name"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-rx-strength">Strength *</label>
+                    <input type="text" id="f-rx-strength" name="strength" required placeholder="40mg">
+                    <span class="error-message" data-for="strength"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-rx-form">Form</label>
+                    <select id="f-rx-form" name="form">
+                        <option value="tablet">Tablet</option>
+                        <option value="capsule">Capsule</option>
+                        <option value="liquid">Liquid</option>
+                        <option value="patch">Patch</option>
+                        <option value="injection">Injection</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" data-for="form"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-rx-route">Route</label>
+                    <select id="f-rx-route" name="route">
+                        <option value="oral">Oral</option>
+                        <option value="topical">Topical</option>
+                        <option value="sublingual">Sublingual</option>
+                        <option value="inhalation">Inhalation</option>
+                        <option value="injection">Injection</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" data-for="route"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-rx-dose">Dose Amount *</label>
+                    <input type="number" id="f-rx-dose" name="dose_amount" step="0.5" min="0.1" value="1" required>
+                    <span class="error-message" data-for="dose_amount"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-rx-unit">Dose Unit *</label>
+                    <select id="f-rx-unit" name="dose_unit" required>
+                        <option value="tablet">Tablet</option>
+                        <option value="capsule">Capsule</option>
+                        <option value="ml">ml</option>
+                        <option value="mg">mg</option>
+                        <option value="patch">Patch</option>
+                        <option value="unit">Unit</option>
+                    </select>
+                    <span class="error-message" data-for="dose_unit"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-rx-freq">Frequency *</label>
+                    <select id="f-rx-freq" name="frequency" required>
+                        <option value="daily">Daily</option>
+                        <option value="bid">Twice Daily (BID)</option>
+                        <option value="tid">Three Times Daily (TID)</option>
+                        <option value="qid">Four Times Daily (QID)</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="prn">As Needed (PRN)</option>
+                    </select>
+                    <span class="error-message" data-for="frequency"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="prescription-doctor">Doctor *</label>
+                    <select name="doctor_id" id="prescription-doctor" required></select>
+                    <span class="error-message" data-for="doctor_id"></span>
+                </div>
+                <div class="form-group">
+                    <label for="prescription-pharmacy">Pharmacy *</label>
+                    <select name="pharmacy_id" id="prescription-pharmacy" required></select>
+                    <span class="error-message" data-for="pharmacy_id"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-rx-instructions">Instructions</label>
+                    <input type="text" id="f-rx-instructions" name="instructions" placeholder="Take in the morning after breakfast">
+                    <span class="error-message" data-for="instructions"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-rx-cycle">Days between refills *</label>
+                    <input type="number" id="f-rx-cycle" name="refill_cycle_days" min="1" value="30" required>
+                    <span class="error-message" data-for="refill_cycle_days"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-rx-remaining">Refills left</label>
+                    <input type="number" id="f-rx-remaining" name="refills_remaining" min="0" value="3">
+                    <span class="error-message" data-for="refills_remaining"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-rx-total">Total refills allowed</label>
+                    <input type="number" id="f-rx-total" name="total_refills_allowed" min="0" value="5">
+                    <span class="error-message" data-for="total_refills_allowed"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-rx-filled">Last Filled Date *</label>
+                    <input type="date" id="f-rx-filled" name="last_filled_date" required>
+                    <span class="error-message" data-for="last_filled_date"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-rx-start">Start Date *</label>
+                    <input type="date" id="f-rx-start" name="prescription_start_date" required>
+                    <span class="error-message" data-for="prescription_start_date"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-rx-ndc">NDC Code</label>
+                    <input type="text" id="f-rx-ndc" name="ndc_code" placeholder="Optional">
+                    <span class="error-message" data-for="ndc_code"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-rx-rxnorm">RxNorm CUI</label>
+                    <input type="text" id="f-rx-rxnorm" name="rxnorm_cui" placeholder="Optional">
+                    <span class="error-message" data-for="rxnorm_cui"></span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="prescription-submit-btn">Add Prescription</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal" id="doctor-modal" role="dialog" aria-modal="true" aria-labelledby="doctor-modal-title">
+        <div class="modal-header">
+            <h2 id="doctor-modal-title"><i data-lucide="stethoscope" class="modal-title-icon" aria-hidden="true"></i> Add Doctor</h2>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close dialog"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <form id="doctor-form" class="modal-form" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-doc-name">Doctor Name *</label>
+                    <input type="text" id="f-doc-name" name="name" required placeholder="Dr. Ananya Deshpande">
+                    <span class="error-message" data-for="name"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-doc-specialty">Specialty</label>
+                    <input type="text" id="f-doc-specialty" name="specialty" placeholder="Cardiology">
+                    <span class="error-message" data-for="specialty"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-doc-practice">Practice Name</label>
+                    <input type="text" id="f-doc-practice" name="practice_name" placeholder="Lotus Heart Care Centre">
+                    <span class="error-message" data-for="practice_name"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-doc-phone">Phone</label>
+                    <input type="tel" id="f-doc-phone" name="phone" placeholder="+91-80-4567-8901" autocomplete="off">
+                    <span class="error-message" data-for="phone"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-doc-fax">Fax</label>
+                    <input type="text" id="f-doc-fax" name="fax" placeholder="+91-80-4567-8909">
+                    <span class="error-message" data-for="fax"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-doc-email">Email</label>
+                    <input type="email" id="f-doc-email" name="email" placeholder="doctor@clinic.in" autocomplete="off">
+                    <span class="error-message" data-for="email"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="f-doc-address">Address</label>
+                <input type="text" id="f-doc-address" name="address" placeholder="Koramangala, Bengaluru">
+                <span class="error-message" data-for="address"></span>
+            </div>
+            <div class="form-group">
+                <label for="f-doc-notes">Notes</label>
+                <textarea id="f-doc-notes" name="notes" placeholder="Manages hypertension care"></textarea>
+                <span class="error-message" data-for="notes"></span>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Doctor</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal" id="pharmacy-modal" role="dialog" aria-modal="true" aria-labelledby="pharmacy-modal-title">
+        <div class="modal-header">
+            <h2 id="pharmacy-modal-title"><i data-lucide="store" class="modal-title-icon" aria-hidden="true"></i> Add Pharmacy</h2>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close dialog"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <form id="pharmacy-form" class="modal-form" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-pharm-name">Pharmacy Name *</label>
+                    <input type="text" id="f-pharm-name" name="name" required placeholder="Sri Ganesh Medicals">
+                    <span class="error-message" data-for="name"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-pharm-phone">Phone *</label>
+                    <input type="tel" id="f-pharm-phone" name="phone" required placeholder="+91-80-4123-4567" autocomplete="off">
+                    <span class="error-message" data-for="phone"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-pharm-address">Address</label>
+                    <input type="text" id="f-pharm-address" name="address" placeholder="Indiranagar, Bengaluru">
+                    <span class="error-message" data-for="address"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-pharm-fax">Fax</label>
+                    <input type="text" id="f-pharm-fax" name="fax" placeholder="+91-80-4123-4000">
+                    <span class="error-message" data-for="fax"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-pharm-email">Email</label>
+                    <input type="email" id="f-pharm-email" name="email" placeholder="orders@pharmacy.in" autocomplete="off">
+                    <span class="error-message" data-for="email"></span>
+                </div>
+                <div class="form-group">
+                    <label for="f-pharm-hours">Hours</label>
+                    <input type="text" id="f-pharm-hours" name="hours" placeholder="Mon-Sat 9:00-21:00">
+                    <span class="error-message" data-for="hours"></span>
+                </div>
+            </div>
+            <div class="form-group checkbox-group">
+                <label for="f-pharm-preferred">
+                    <input type="checkbox" id="f-pharm-preferred" name="is_preferred" checked> Preferred Pharmacy
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Pharmacy</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="/static/app.js?v=11"></script>
+</body>
+</html>

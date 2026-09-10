@@ -1,0 +1,38 @@
+[
+  {
+    "id": "01ARZ3NDEKTSV4RRFFQ69G5FAX",
+    "name": "Dr. Ananya Deshpande",
+    "specialty": "Cardiology",
+    "practice_name": "Lotus Heart Care Centre, Bengaluru",
+    "phone": "+91-80-4567-8901",
+    "fax": "+91-80-4567-8909",
+    "email": "cardiology@lotusheartcare.in",
+    "address": "No. 24, 80 Feet Road, Koramangala, Bengaluru, Karnataka 560095",
+    "notes": "Senior cardiologist, manages hypertension care",
+    "created_at": "2026-01-15T10:00:00"
+  },
+  {
+    "id": "01ARZ3NDEKTSV4RRFFQ69G5FAY",
+    "name": "Dr. Vikram Menon",
+    "specialty": "Endocrinology",
+    "practice_name": "Greenview Diabetes & Endocrine Clinic, Bengaluru",
+    "phone": "+91-80-4567-8902",
+    "fax": null,
+    "email": "endo@greenviewclinic.in",
+    "address": "No. 11, 100 Feet Road, Indiranagar, Bengaluru, Karnataka 560038",
+    "notes": "Endocrinologist, manages diabetes care",
+    "created_at": "2026-01-15T10:00:00"
+  },
+  {
+    "id": "01ARZ3NDEKTSV4RRFFQ69G5FAZ",
+    "name": "Dr. Kavitha Rao",
+    "specialty": "General Medicine",
+    "practice_name": "Shanti General Hospital, Bengaluru",
+    "phone": "+91-80-4567-8903",
+    "fax": null,
+    "email": "general@shantihospital.in",
+    "address": "No. 7, Double Road, Shantinagar, Bengaluru, Karnataka 560027",
+    "notes": "General physician, first point of contact for routine issues",
+    "created_at": "2026-01-15T10:00:00"
+  }
+]

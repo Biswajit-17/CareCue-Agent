@@ -1,0 +1,44 @@
+[
+  {
+    "id": "01ARZ3NDEKTSV4RRFFQ69G5FC0",
+    "prescription_id": "01ARZ3NDEKTSV4RRFFQ69G5FB0",
+    "requested_date": "2026-09-02",
+    "status": "pending",
+    "filled_date": null,
+    "picked_up_date": null,
+    "pharmacy_id": "01ARZ3NDEKTSV4RRFFQ69G5FAZ",
+    "quantity": 30,
+    "days_supply": 30,
+    "notes": "Auto-requested by agent for overdue Telma 40",
+    "created_at": "2026-09-02T08:00:00",
+    "updated_at": "2026-09-02T08:00:00"
+  },
+  {
+    "id": "01ARZ3NDEKTSV4RRFFQ69G5FC1",
+    "prescription_id": "01ARZ3NDEKTSV4RRFFQ69G5FB1",
+    "requested_date": "2026-08-08",
+    "status": "picked_up",
+    "filled_date": "2026-08-09",
+    "picked_up_date": "2026-08-10",
+    "pharmacy_id": "01ARZ3NDEKTSV4RRFFQ69G5FAZ",
+    "quantity": 90,
+    "days_supply": 30,
+    "notes": "Picked up from Sri Ganesh Medicals",
+    "created_at": "2026-08-08T08:00:00",
+    "updated_at": "2026-08-10T10:00:00"
+  },
+  {
+    "id": "01ARZ3NDEKTSV4RRFFQ69G5FD6",
+    "prescription_id": "01ARZ3NDEKTSV4RRFFQ69G5FD1",
+    "requested_date": "2026-09-03",
+    "status": "pending",
+    "filled_date": null,
+    "picked_up_date": null,
+    "pharmacy_id": "01ARZ3NDEKTSV4RRFFQ69G5FD5",
+    "quantity": 30,
+    "days_supply": 30,
+    "notes": "Auto-requested by agent for overdue Amlovas 5",
+    "created_at": "2026-09-03T08:00:00",
+    "updated_at": "2026-09-03T08:00:00"
+  }
+]

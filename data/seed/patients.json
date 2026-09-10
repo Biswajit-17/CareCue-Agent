@@ -1,0 +1,22 @@
+[
+  {
+    "id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+    "caregiver_id": "01ARZ3NDEKTSV4RRFFQ69G5FAW",
+    "name": "Meenakshi Krishnan",
+    "date_of_birth": "1948-05-12",
+    "notes": "Lives independently in Bengaluru, mild hypertension history, prefers reminders for evening doses",
+    "phone": "+91-98450-67890",
+    "email": "biswajitrk123@gmail.com",
+    "created_at": "2026-01-15T10:00:00"
+  },
+  {
+    "id": "01ARZ3NDEKTSV4RRFFQ69G5FD0",
+    "caregiver_id": "01ARZ3NDEKTSV4RRFFQ69G5FAW",
+    "name": "Lakshmi Krishnan",
+    "date_of_birth": "1950-02-20",
+    "notes": "Lives with family in Bengaluru, mild arthritis, takes thyroid medication empty stomach",
+    "phone": "+91-98450-67891",
+    "email": "lakshmi.k@example.com",
+    "created_at": "2026-02-10T10:00:00"
+  }
+]

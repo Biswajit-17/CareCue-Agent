@@ -1,0 +1,7 @@
+python-dotenv
+strands-agents
+strands-agents-tools
+strands-agents[openai]
+schedule
+email-validator
+streamlit
