@@ -283,7 +283,7 @@ flowchart TB
 | API | FastAPI + Telegram webhook | `ui/api.py` |
 | Frontend | Vanilla JS, Figtree/Noto Sans | `ui/static/` |
 | Database | SQLite | `data/carecue.db` |
-| Scheduler | `schedule` library | `scheduler.py` |
+| Scheduler | `schedule` library (daily, hourly, 15-min escalation) | `scheduler.py` |
 | Messaging | Telegram Bot API + Gmail SMTP | `tools/` |
 
 Full architecture diagram: [architecture.md](docs/architecture.md)

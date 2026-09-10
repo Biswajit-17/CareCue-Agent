@@ -483,6 +483,34 @@ class Repository:
             """, (patient_id, now))
             return cursor.rowcount
 
+    def get_pending_tokens_past_grace(self, grace_minutes: int = 90) -> list[DoseToken]:
+        """Find pending tokens past their grace period that haven't been alerted yet.
+
+        Returns tokens where: scheduled_time + grace_minutes < now,
+        still pending, not used, not expired, and no_response_alerted = 0.
+        """
+        now = datetime.utcnow()
+        grace_cutoff = (now - __import__('datetime').timedelta(minutes=grace_minutes)).isoformat()
+        expires_now = now.isoformat()
+        with self._conn() as conn:
+            rows = conn.execute("""
+                SELECT * FROM dose_confirmation_tokens
+                WHERE pending = 1 AND used = 0 AND no_response_alerted = 0
+                  AND expires_at > ? AND scheduled_time <= ?
+                ORDER BY scheduled_time ASC
+            """, (expires_now, grace_cutoff)).fetchall()
+            return [self._row_to_dose_token(row) for row in rows]
+
+    def mark_token_alerted(self, token: str) -> bool:
+        """Mark a token as having triggered a no-response escalation alert."""
+        with self._conn() as conn:
+            cursor = conn.execute("""
+                UPDATE dose_confirmation_tokens
+                SET no_response_alerted = 1
+                WHERE token = ? AND no_response_alerted = 0
+            """, (token,))
+            return cursor.rowcount > 0
+
     def _row_to_dose_token(self, row) -> DoseToken:
         return DoseToken(
             token=row["token"],
@@ -492,6 +520,7 @@ class Repository:
             expires_at=datetime.fromisoformat(row["expires_at"]),
             used=bool(row["used"]),
             pending=bool(row["pending"]),
+            no_response_alerted=bool(row["no_response_alerted"]) if "no_response_alerted" in row.keys() else False,
             used_at=datetime.fromisoformat(row["used_at"]) if row["used_at"] else None,
             created_at=datetime.fromisoformat(row["created_at"]),
         )

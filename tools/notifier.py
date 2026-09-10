@@ -211,12 +211,38 @@ def _format_refill_drafted_alert(patient_name: str, draft_data: dict) -> tuple[s
     return subject, "\n".join(html_parts), "\n".join(text_parts)
 
 
+def _format_no_response_alert(patient_name: str, escalation_data: dict) -> tuple[str, str, str]:
+    """Format no-response escalation alert (informational, not alarming)."""
+    medication = escalation_data.get("medication", "your medication")
+    scheduled_time = escalation_data.get("scheduled_time", "")
+    
+    subject = f"Heads up: {patient_name} hasn't confirmed their {medication} dose yet"
+    
+    html_parts = [
+        f"<h2>Heads up: {patient_name} hasn't confirmed their dose yet</h2>",
+        f"<p>{patient_name} was scheduled to take <strong>{medication}</strong> at <strong>{scheduled_time}</strong>.</p>",
+        "<p>We haven't received a YES/NO confirmation from them yet.</p>",
+        "<p>This doesn't necessarily mean the dose was missed — it just means we haven't heard back. "
+        "You may want to check in with them when you get a chance.</p>",
+    ]
+    text_parts = [
+        f"Heads up: {patient_name} hasn't confirmed their dose yet\n",
+        f"{patient_name} was scheduled to take {medication} at {scheduled_time}.",
+        "We haven't received a YES/NO confirmation from them yet.",
+        "This doesn't necessarily mean the dose was missed — it just means we haven't heard back.",
+        "You may want to check in with them when you get a chance.",
+    ]
+    
+    return subject, "\n".join(html_parts), "\n".join(text_parts)
+
+
 ALERT_FORMATTERS = {
     AlertType.REFILL_DUE: _format_refill_alert,
     AlertType.REFILL_OVERDUE: _format_refill_alert,
     AlertType.CONFLICT_DETECTED: _format_conflict_alert,
     AlertType.DOSE_PATTERN: _format_dose_pattern_alert,
     AlertType.REFILL_DRAFTED: _format_refill_drafted_alert,
+    AlertType.NO_RESPONSE: _format_no_response_alert,
 }
 
 

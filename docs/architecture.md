@@ -11,7 +11,7 @@ flowchart TB
 
     subgraph Scheduler["Scheduler — scheduler.py"]
         direction LR
-        SCHED["Hourly: dose reminders<br/>Daily: refill + conflict checks"]
+        SCHED["Daily: refill + conflict checks<br/>Hourly: dose reminders<br/>Every 15 min: no-response escalation"]
     end
 
     subgraph Agent["Strands Agent — agent/"]
@@ -38,8 +38,8 @@ flowchart TB
     subgraph Data["Data Layer — data/"]
         direction TB
         REPO["repository.py<br/>SQLite CRUD<br/>Telegram linking methods"]
-        DB[("carecue.db<br/>SQLite Database<br/>patients, prescriptions,<br/>dose_logs, tokens,<br/>linking_codes")]
-        MODELS["models.py<br/>Patient, Prescription,<br/>Refill, DoseLog,<br/>DoseToken, Doctor,<br/>Pharmacy, Alert"]
+        DB[("carecue.db<br/>SQLite Database<br/>patients, prescriptions,<br/>dose_logs, tokens,<br/>linking_codes, alerts")]
+        MODELS["models.py<br/>Patient, Prescription,<br/>Refill, DoseLog,<br/>DoseToken (no_response_alerted),<br/>Doctor, Pharmacy, Alert"]
         SEED["seed.py + seed/*.json<br/>Indian-context test data"]
     end
 
@@ -137,4 +137,5 @@ flowchart TB
 5. **notifier** sends caregiver alerts via Gmail SMTP
 6. **dose_reminder_sender** sends patient reminders via Telegram Bot API
 7. Patients reply YES/NO on Telegram → **webhook** receives the message → records dose log
-8. **FastAPI** serves the REST API and frontend dashboard independently, sharing the same data layer
+8. **No-response escalation** (every 15 min): if patient hasn't replied within 90 minutes, caregiver gets an informational email — calm tone, not alarming
+9. **FastAPI** serves the REST API and frontend dashboard independently, sharing the same data layer

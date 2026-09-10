@@ -160,6 +160,7 @@ CREATE TABLE IF NOT EXISTS dose_confirmation_tokens (
     expires_at TEXT NOT NULL,
     used BOOLEAN DEFAULT 0,
     pending BOOLEAN DEFAULT 1,
+    no_response_alerted BOOLEAN DEFAULT 0,
     used_at TEXT,
     created_at TEXT NOT NULL
 );
@@ -215,12 +216,14 @@ def _migrate(conn) -> None:
     if "telegram_chat_id" not in cols:
         conn.execute("ALTER TABLE patients ADD COLUMN telegram_chat_id INTEGER")
 
-    # dose_confirmation_tokens table: add patient_id/pending if missing
+    # dose_confirmation_tokens table: add patient_id/pending/no_response_alerted if missing
     dcols = {row["name"] for row in conn.execute("PRAGMA table_info(dose_confirmation_tokens)").fetchall()}
     if "patient_id" not in dcols:
         conn.execute("ALTER TABLE dose_confirmation_tokens ADD COLUMN patient_id TEXT DEFAULT ''")
     if "pending" not in dcols:
         conn.execute("ALTER TABLE dose_confirmation_tokens ADD COLUMN pending BOOLEAN DEFAULT 1")
+    if "no_response_alerted" not in dcols:
+        conn.execute("ALTER TABLE dose_confirmation_tokens ADD COLUMN no_response_alerted BOOLEAN DEFAULT 0")
 
     # telegram_linking_codes table: create if missing
     tables = {row["name"] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}

@@ -9,6 +9,9 @@ from typing import Optional
 from agent.core import run_daily_check
 from agent.state import get_agent_state
 from tools.dose_reminder_sender import send_due_dose_reminders
+from tools.notifier import _send_email, _format_no_response_alert
+from data.repository import get_repository
+from data.models import DoseToken
 
 
 class CareCueScheduler:
@@ -49,11 +52,71 @@ class CareCueScheduler:
             print(f"  ERROR: {err}")
         return result
 
+    def run_no_response_checks(self) -> dict:
+        """Check for tokens past grace period and send caregiver escalation alerts.
+
+        Finds pending tokens where scheduled_time + NO_RESPONSE_GRACE_MINUTES
+        has elapsed, sends one informational email per token, and marks them
+        as alerted to prevent duplicate sends.
+        """
+        repo = get_repository()
+        grace_minutes = DoseToken.NO_RESPONSE_GRACE_MINUTES
+        tokens = repo.get_pending_tokens_past_grace(grace_minutes)
+        
+        sent = 0
+        skipped = 0
+        errors = []
+        
+        for token in tokens:
+            try:
+                patient = repo.get_patient(token.patient_id)
+                if not patient:
+                    skipped += 1
+                    continue
+                
+                caregiver = repo.get_caregiver(patient.caregiver_id)
+                if not caregiver or not caregiver.email:
+                    skipped += 1
+                    continue
+                
+                prescription = repo.get_prescription(token.prescription_id)
+                if not prescription:
+                    skipped += 1
+                    continue
+                
+                medication = f"{prescription.medication_name} {prescription.strength}"
+                scheduled_str = token.scheduled_time.strftime("%I:%M %p on %B %d")
+                
+                escalation_data = {
+                    "medication": medication,
+                    "scheduled_time": scheduled_str,
+                }
+                
+                subject, html_body, text_body = _format_no_response_alert(patient.name, escalation_data)
+                
+                success, error_msg = _send_email(caregiver.email, subject, html_body, text_body)
+                
+                if success:
+                    repo.mark_token_alerted(token.token)
+                    sent += 1
+                else:
+                    errors.append(f"Failed to send no-response alert for {patient.name}: {error_msg}")
+            except Exception as e:
+                errors.append(f"Error processing token for patient {token.patient_id}: {e}")
+        
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] No-response checks: "
+              f"{sent} alerts sent, {skipped} skipped, {len(errors)} errors")
+        for err in errors:
+            print(f"  ERROR: {err}")
+        
+        return {"alerts_sent": sent, "skipped": skipped, "errors": errors}
+
     def _run_loop(self):
         """Background loop that runs schedule."""
         schedule.every().day.at(self.run_time).do(self.run_once)
         schedule.every().hour.at(":05").do(self.run_dose_reminders)
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Scheduler started - daily run at {self.run_time}, dose reminders hourly")
+        schedule.every(15).minutes.do(self.run_no_response_checks)
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Scheduler started - daily run at {self.run_time}, dose reminders hourly, no-response checks every 15 min")
         
         while self._running:
             schedule.run_pending()

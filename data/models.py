@@ -35,6 +35,7 @@ class AlertType(str, Enum):
     CONFLICT_DETECTED = "conflict_detected"
     DOSE_PATTERN = "dose_pattern"
     REFILL_DRAFTED = "refill_drafted"
+    NO_RESPONSE = "no_response"
 
 
 class AlertSeverity(str, Enum):
@@ -214,10 +215,12 @@ class DoseToken(BaseModel):
     expires_at: datetime
     used: bool = False
     pending: bool = True
+    no_response_alerted: bool = False
     used_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     TOKEN_VALIDITY_HOURS: ClassVar[int] = 6
+    NO_RESPONSE_GRACE_MINUTES: ClassVar[int] = 90
 
 
 class Alert(BaseModel):
