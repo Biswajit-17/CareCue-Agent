@@ -79,7 +79,7 @@ You should get: `{"ok":true,"result":...,"description":"Webhook was set"}`
 1. Trigger a reminder (see below)
 2. The patient receives a Telegram message
 3. Reply YES or NO
-4. Check the dashboard — the DoseLog appears
+4. Check the dashboard, the DoseLog appears
 
 #### Trigger a reminder manually
 
@@ -273,7 +273,7 @@ flowchart TB
     class SCHED scheduler
 ```
 
-> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram — webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer.*
+> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram, webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer.*
 
 | Layer | Technology | File |
 |-------|-----------|------|
