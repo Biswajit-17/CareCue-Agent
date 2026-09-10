@@ -87,7 +87,9 @@ flowchart TB
     %% Outbound channels
     T5 -->|"caregiver alerts"| GMAIL
     T6 -->|"patient reminders"| TG
-    T6 <--|"YES/NO replies"| WEBHOOK
+
+    %% Inbound Telegram replies
+    TG -->|"YES/NO replies"| WEBHOOK
 
     %% Data layer
     REPO <--> DB
@@ -99,7 +101,7 @@ flowchart TB
     REST --> FASTAPI
     WEBHOOK --> FASTAPI
     LINK --> FASTAPI
-    WEBHOOK <--|"inbound messages"| TG
+    TG -->|"inbound messages"| WEBHOOK
 
     %% Frontend to API
     HTML --> FASTAPI
@@ -124,9 +126,7 @@ flowchart TB
     class SCHED scheduler
 ```
 
-## How to render
 
-Paste the Mermaid code block above into [mermaid.live](https://mermaid.live) to view and export as PNG/SVG.
 
 ## Data flow summary
 
