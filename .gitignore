@@ -48,3 +48,7 @@ test_delete.py
 # Project config (not needed in repo)
 opencode.json
 PLAN.md
+
+# Leftover root files
+__init__.py
+agent.py

@@ -4,4 +4,3 @@ strands-agents-tools
 strands-agents[openai]
 schedule
 email-validator
-streamlit
