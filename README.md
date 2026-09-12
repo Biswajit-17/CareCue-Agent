@@ -1,6 +1,6 @@
 # CareCue - Medication Logistics Agent
 
-CareCue tracks prescriptions, detects conflicts, monitors adherence, and sends Telegram reminders for Indian-context elderly care. Patients confirm doses by replying YES or NO directly on Telegram — no links, no dashboard, no app.
+CareCue tracks prescriptions, detects conflicts, monitors adherence, and sends Telegram reminders for Indian-context elderly care. Patients confirm doses by replying YES or NO directly on Telegram - no links, no dashboard, no app.
 
 ## Quick Start
 
@@ -17,7 +17,7 @@ pip install -r requirements.txt
 1. Open Telegram and message [@BotFather](https://t.me/BotFather)
 2. Send `/newbot`, follow the prompts
 3. Choose a name (e.g. `CareCue`) and username (e.g. `CareCueBot`)
-4. BotFather gives you a bot token — copy it
+4. BotFather gives you a bot token - copy it
 
 ### 3. Configure environment
 
@@ -156,19 +156,19 @@ flowchart TB
         GMAIL["Gmail SMTP<br/>Caregiver email alerts"]
     end
 
-    subgraph Scheduler["Scheduler — scheduler.py"]
+    subgraph Scheduler["Scheduler - scheduler.py"]
         direction LR
         SCHED["Hourly: dose reminders<br/>Daily: refill + conflict checks"]
     end
 
-    subgraph Agent["Strands Agent — agent/"]
+    subgraph Agent["Strands Agent - agent/"]
         direction TB
         CORE["core.py<br/>Primary Agent<br/>Tool orchestration + dedup"]
         STATE["state.py<br/>Session state<br/>Run tracking"]
         AGENT_MAIN["agent_main.py<br/>Agent entry point"]
     end
 
-    subgraph Tools["Agent Tools — tools/"]
+    subgraph Tools["Agent Tools - tools/"]
         direction TB
         T1["refill_tracker<br/>Detect overdue/due-soon refills"]
         T2["conflict_checker<br/>Drug class overlap detection<br/>Uses data/drug_classes.json"]
@@ -182,7 +182,7 @@ flowchart TB
         DRUGS["data/drug_classes.json<br/>15 drug classes<br/>WHO ATC verified<br/>Indian brand names"]
     end
 
-    subgraph Data["Data Layer — data/"]
+    subgraph Data["Data Layer - data/"]
         direction TB
         REPO["repository.py<br/>SQLite CRUD<br/>Telegram linking methods"]
         DB[("carecue.db<br/>SQLite Database<br/>patients, prescriptions,<br/>dose_logs, tokens,<br/>linking_codes")]
@@ -190,7 +190,7 @@ flowchart TB
         SEED["seed.py + seed/*.json<br/>Indian-context test data"]
     end
 
-    subgraph API["API Layer — ui/api.py"]
+    subgraph API["API Layer - ui/api.py"]
         direction TB
         FASTAPI["FastAPI Server<br/>Port 8000"]
         REST["REST Endpoints<br/>patients, prescriptions,<br/>doctors, pharmacies,<br/>refills, dashboard"]
@@ -198,7 +198,7 @@ flowchart TB
         LINK["POST /api/patients/:id/telegram-link<br/>Generate linking code"]
     end
 
-    subgraph Frontend["Frontend — ui/static/"]
+    subgraph Frontend["Frontend - ui/static/"]
         direction LR
         HTML["index.html<br/>SPA shell"]
         CSS["styles.css<br/>Dark/light theme"]
@@ -334,8 +334,8 @@ python main.py --test-email you@example.com
 | Problem | Fix |
 |---------|-----|
 | No Telegram message received | Check ngrok is running, webhook is registered, bot token is correct |
-| "No CareCue account linked" | Patient hasn't linked yet — generate a code and send `/start <CODE>` to the bot |
-| "Invalid linking code" | Code was already used or doesn't exist — generate a new one |
-| "No pending dose reminder" | The reminder expired (6 hours) or you already replied — trigger a new one |
+| "No CareCue account linked" | Patient hasn't linked yet - generate a code and send `/start <CODE>` to the bot |
+| "Invalid linking code" | Code was already used or doesn't exist - generate a new one |
+| "No pending dose reminder" | The reminder expired (6 hours) or you already replied - trigger a new one |
 | Webhook registration fails | Make sure ngrok is running and the URL is correct; check with `curl` |
 | Bot doesn't respond | Verify `TELEGRAM_BOT_TOKEN` in `.env` matches what BotFather gave you |
