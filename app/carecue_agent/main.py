@@ -39,8 +39,8 @@ from tools import (
 app = BedrockAgentCoreApp()
 
 # Use Bedrock model - AWS credentials are available in AgentCore Runtime
-# Claude Sonnet 4: better accuracy, less hallucination than Haiku
-model = BedrockModel(model_id="anthropic.claude-sonnet-4-20250514-v1:0")
+# Claude Haiku 4.5: $1.00/$5.00 per 1M tokens
+model = BedrockModel(model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0")
 
 SYSTEM_PROMPT = """You are CareCue, a medication logistics agent for caregivers managing elderly parents' prescriptions.
 
