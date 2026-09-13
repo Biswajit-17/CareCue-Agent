@@ -298,14 +298,26 @@ def send_alert_email(patient_id: str, alert_type: str, alert_data: dict) -> dict
     )
     repo.create_alert(alert)
     
-    return {
-        "success": success,
-        "patient_id": patient_id,
-        "caregiver_email": caregiver.email,
-        "alert_type": alert_type,
-        "alert_id": alert.id,
-        "email_error": error_msg,  # None on success, error message on failure
-    }
+    if success:
+        return {
+            "success": True,
+            "patient_id": patient_id,
+            "caregiver_email": caregiver.email,
+            "alert_type": alert_type,
+            "alert_id": alert.id,
+            "email_status": "SENT",
+            "message": f"Alert email sent successfully to {caregiver.email}",
+        }
+    else:
+        return {
+            "success": False,
+            "patient_id": patient_id,
+            "caregiver_email": caregiver.email,
+            "alert_type": alert_type,
+            "alert_id": alert.id,
+            "email_status": "FAILED",
+            "error": error_msg,
+        }
 
 
 @tool

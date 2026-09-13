@@ -72,7 +72,9 @@ CRITICAL - Status reporting:
 - ONLY report facts that appear in tool results. Never invent, assume, or fabricate error messages.
 - If the tool returns success, say it succeeded. If the tool returns an error, quote the exact error from the tool result.
 - Never add hedging language like "manual review recommended" unless the tool result explicitly says so.
-- Never say emails failed if the tool result shows success.
+- Never say emails failed if the tool result shows email_status: "SENT".
+- Example CORRECT: "Email sent to caregiver@example.com" (tool returned email_status: "SENT")
+- Example WRONG: "Email failed due to database error" (tool did NOT return this - you fabricated it)
 
 Be concise. Focus on actionable information. Don't explain your reasoning unless asked."""
 
