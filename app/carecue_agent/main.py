@@ -7,6 +7,7 @@ of OpenRouter since AgentCore runs on AWS with native Bedrock access.
 
 import sys
 import io
+import re
 from pathlib import Path
 
 # Fix Windows cp1252 encoding issue for emoji in model responses
@@ -35,6 +36,7 @@ from tools import (
     send_alert_email,
     send_test_email,
 )
+from tools.notifier import get_and_clear_email_results
 
 app = BedrockAgentCoreApp()
 
@@ -68,15 +70,7 @@ When you run:
 4. Send ONE consolidated alert email per patient
 4. Record results in agent state
 
-CRITICAL - Status reporting:
-- ONLY report facts that appear in tool results. Never invent, assume, or fabricate error messages.
-- If the tool returns success, say it succeeded. If the tool returns an error, quote the exact error from the tool result.
-- Never add hedging language like "manual review recommended" unless the tool result explicitly says so.
-- Never say emails failed if the tool result shows email_status: "SENT".
-- Example CORRECT: "Email sent to caregiver@example.com" (tool returned email_status: "SENT")
-- Example WRONG: "Email failed due to database error" (tool did NOT return this - you fabricated it)
-
-Be concise. Focus on actionable information. Don't explain your reasoning unless asked."""
+Do NOT include any section about email/alert delivery status in your response. That will be appended automatically."""
 
 agent = Agent(
     model=model,
@@ -97,12 +91,65 @@ agent = Agent(
 )
 
 
+def _strip_email_status(text: str) -> str:
+    """Remove any LLM-generated email/alert status lines from the response."""
+    # Patterns that Haiku uses to describe email status (varies each run)
+    patterns = [
+        r'\*\*Alert Notifications?:?\*\*.*?(?=\n\n|\n###|\Z)',
+        r'\*\*Alert Delivery Status:?\*\*.*?(?=\n\n|\n###|\Z)',
+        r'\*\*Email Status:?\*\*.*?(?=\n\n|\n###|\Z)',
+        r'Alert emails?:?.*?(?=\n\n|\n###|\Z)',
+        r'Email alerts?:?.*?(?=\n\n|\n###|\Z)',
+        r'Unable to send.*?(?=\n\n|\n###|\Z)',
+        r'Failed to send.*?(?=\n\n|\n###|\Z)',
+        r'database write.*?(?=\n\n|\n###|\Z)',
+        r'Manual.*?notification.*?(?=\n\n|\n###|\Z)',
+    ]
+    for pattern in patterns:
+        text = re.sub(pattern, '', text, flags=re.IGNORECASE | re.DOTALL)
+    return text.strip()
+
+
+def _build_deterministic_email_status() -> str:
+    """Build email status section from actual tool results, not LLM output."""
+    results = get_and_clear_email_results()
+    if not results:
+        return ""
+    
+    lines = ["**Alert Delivery Status:**"]
+    for r in results:
+        if r["success"]:
+            lines.append(f"- {r['patient_name']}: [OK] Email sent successfully")
+        else:
+            lines.append(f"- {r['patient_name']}: [FAILED] {r['error_detail']}")
+    return "\n".join(lines)
+
+
 @app.entrypoint
 def invoke(payload):
     """AgentCore calls this with {"prompt": "..."}."""
     prompt = payload.get("prompt", "Run daily check for all patients")
+    
+    # Clear any previous email results
+    get_and_clear_email_results()
+    
+    # Run agent - LLM generates patient summary, tools send emails
     result = agent(prompt)
-    return {"result": str(result)}
+    llm_text = str(result)
+    
+    # Strip any fabricated email status from LLM output
+    cleaned_text = _strip_email_status(llm_text)
+    
+    # Build deterministic email status from actual tool results
+    email_status = _build_deterministic_email_status()
+    
+    # Combine: LLM patient summary + deterministic email status
+    if email_status:
+        final_response = f"{cleaned_text}\n\n{email_status}"
+    else:
+        final_response = cleaned_text
+    
+    return {"result": final_response}
 
 
 if __name__ == "__main__":

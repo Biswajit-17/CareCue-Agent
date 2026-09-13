@@ -14,6 +14,28 @@ from data.models import Alert, AlertType, AlertSeverity
 # Load .env file
 load_dotenv()
 
+# Email result tracking - captures actual send outcomes for deterministic response assembly
+# List of dicts: {patient_id, patient_name, success, error_detail}
+_email_send_results: list[dict] = []
+
+
+def get_and_clear_email_results() -> list[dict]:
+    """Get all email send results since last clear, then clear the list."""
+    results = _email_send_results.copy()
+    _email_send_results.clear()
+    return results
+
+
+def _track_email_result(patient_id: str, patient_name: str, success: bool, error_detail: str = None):
+    """Record an email send result for deterministic status reporting."""
+    _email_send_results.append({
+        "patient_id": patient_id,
+        "patient_name": patient_name,
+        "success": success,
+        "error_detail": error_detail or ("Email sent successfully" if success else "Unknown error"),
+    })
+
+
 # Gmail SMTP configuration
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
@@ -297,6 +319,9 @@ def send_alert_email(patient_id: str, alert_type: str, alert_data: dict) -> dict
         related_refill_ids=alert_data.get("related_refill_ids", []),
     )
     repo.create_alert(alert)
+    
+    # Track result for deterministic status reporting
+    _track_email_result(patient_id, patient.name, success, error_msg)
     
     if success:
         return {

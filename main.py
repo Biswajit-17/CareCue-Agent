@@ -11,6 +11,7 @@ Usage:
 """
 
 import sys
+import re
 import argparse
 from dotenv import load_dotenv
 
@@ -19,6 +20,40 @@ load_dotenv()
 from agent.core import create_agent, run_daily_check, run_patient_check
 from agent.state import get_agent_state
 from scheduler import run_once, run_scheduler_forever, get_scheduler
+from tools.notifier import get_and_clear_email_results
+
+
+def _strip_email_status(text: str) -> str:
+    """Remove any LLM-generated email/alert status lines from the response."""
+    patterns = [
+        r'\*\*Alert Notifications?:?\*\*.*?(?=\n\n|\n###|\Z)',
+        r'\*\*Alert Delivery Status:?\*\*.*?(?=\n\n|\n###|\Z)',
+        r'\*\*Email Status:?\*\*.*?(?=\n\n|\n###|\Z)',
+        r'Alert emails?:?.*?(?=\n\n|\n###|\Z)',
+        r'Email alerts?:?.*?(?=\n\n|\n###|\Z)',
+        r'Unable to send.*?(?=\n\n|\n###|\Z)',
+        r'Failed to send.*?(?=\n\n|\n###|\Z)',
+        r'database write.*?(?=\n\n|\n###|\Z)',
+        r'Manual.*?notification.*?(?=\n\n|\n###|\Z)',
+    ]
+    for pattern in patterns:
+        text = re.sub(pattern, '', text, flags=re.IGNORECASE | re.DOTALL)
+    return text.strip()
+
+
+def _build_deterministic_email_status() -> str:
+    """Build email status section from actual tool results, not LLM output."""
+    results = get_and_clear_email_results()
+    if not results:
+        return ""
+    
+    lines = ["**Alert Delivery Status:**"]
+    for r in results:
+        if r["success"]:
+            lines.append(f"- {r['patient_name']}: [OK] Email sent successfully")
+        else:
+            lines.append(f"- {r['patient_name']}: [FAILED] {r['error_detail']}")
+    return "\n".join(lines)
 
 
 def main():
@@ -163,8 +198,15 @@ def main():
                 continue
             
             # Let the agent handle it
+            get_and_clear_email_results()  # Clear previous results
             response = agent(user_input)
-            print(response)
+            llm_text = str(response)
+            cleaned_text = _strip_email_status(llm_text)
+            email_status = _build_deterministic_email_status()
+            if email_status:
+                print(f"{cleaned_text}\n\n{email_status}")
+            else:
+                print(cleaned_text)
             
         except KeyboardInterrupt:
             break

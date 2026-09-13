@@ -100,7 +100,7 @@ def create_agent() -> Agent:
 
 
 # Top-level imports for email formatting
-from tools.notifier import _format_refill_alert, _format_conflict_alert, _format_dose_pattern_alert, _format_refill_drafted_alert
+from tools.notifier import _format_refill_alert, _format_conflict_alert, _format_dose_pattern_alert, _format_refill_drafted_alert, _track_email_result
 from data.models import Alert, AlertType, AlertSeverity
 import smtplib
 from email.mime.text import MIMEText
@@ -286,12 +286,15 @@ def run_daily_check() -> dict[str, Any]:
                                 state.set_checkpoint(f"last_alert_fingerprint_{patient.id}", fingerprint)
                                 
                                 total_alerts_sent += 1
+                                _track_email_result(patient.id, patient.name, True, "Email sent successfully")
                             except Exception as e:
                                 errors.append(f"Failed to send email for {patient.name}: {e}")
                                 state.record_alert(run_id, patient.id, "consolidated", "error", 
                                                  "", "failed", str(e))
+                                _track_email_result(patient.id, patient.name, False, str(e))
                         else:
                             errors.append("SMTP not configured")
+                            _track_email_result(patient.id, patient.name, False, "SMTP not configured")
                     
             except Exception as e:
                 errors.append(f"Error checking patient {patient.name}: {e}")
