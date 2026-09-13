@@ -5,7 +5,7 @@ flowchart TB
     subgraph External["External Services"]
         direction LR
         OR["OpenRouter<br/>LLM Provider<br/>(Claude Sonnet)<br/><i>local dev</i>"]
-        BED["AWS Bedrock<br/>LLM Provider<br/>(Claude Sonnet)<br/><i>deployed</i>"]
+        BED["AWS Bedrock<br/>LLM Provider<br/>(Claude Haiku)<br/><i>deployed</i>"]
         TG["Telegram Bot API<br/>Patient dose reminders<br/>& confirmation replies"]
         GMAIL["Gmail SMTP<br/>Caregiver email alerts"]
     end
@@ -141,4 +141,4 @@ flowchart TB
 7. Patients reply YES/NO on Telegram -> **webhook** receives the message -> records dose log
 8. **No-response escalation** (every 15 min): if patient hasn't replied within 90 minutes, caregiver gets an informational email - calm tone, not alarming
 9. **FastAPI** serves the REST API and frontend dashboard independently, sharing the same data layer
-10. **AgentCore deployment** - deployed agent runs the same tools via Bedrock Claude Sonnet on AWS, invoked via `agentcore invoke` or API endpoint; local dev uses OpenRouter Claude Sonnet
+10. **AgentCore deployment** - deployed agent runs the same tools via Bedrock Claude Haiku on AWS, invoked via `agentcore invoke` or API endpoint; local dev uses OpenRouter Claude Sonnet
