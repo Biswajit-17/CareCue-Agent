@@ -1,6 +1,10 @@
 # CareCue - Medication Logistics Agent
 
-CareCue tracks prescriptions, detects conflicts, monitors adherence, and sends Telegram reminders for Indian-context elderly care. Patients confirm doses by replying YES or NO directly on Telegram - no links, no dashboard, no app.
+**Problem:** Elderly patients in India often manage complex medication schedules alone. Missed doses, overdue refills, and drug interactions go unnoticed until it's too late. Caregivers live nearby but have no visibility.
+
+**Audience:** Family caregivers managing medications for aging parents or relatives in India.
+
+**How it works:** CareCue tracks prescriptions, detects conflicts, monitors adherence, and sends Telegram reminders. Patients confirm doses by replying YES or NO directly on Telegram - no links, no dashboard, no app. If a patient doesn't respond within 90 minutes, the caregiver gets a calm heads-up email. Quiet by default, only surfaces real decisions.
 
 ## Quick Start
 
@@ -143,6 +147,7 @@ Requires: `pyproject.toml` at project root, AWS credentials configured (`aws con
 ```
 
 - **One pending reminder per patient**: if a patient already has an unanswered reminder, new ones are skipped until the patient replies or the reminder expires (6 hours).
+- **No-response escalation**: if a patient hasn't replied within 90 minutes, the caregiver gets a calm heads-up email - not alarming, just informational. Designed to surface real issues without noise.
 - **No token in Telegram**: the patient's Telegram `chat_id` IS the identifier. The webhook extracts `chat_id` from the inbound message and matches it to the patient.
 - **Unrecognized replies**: auto-responds with "Sorry, reply YES or NO."
 - **Patient linking**: each patient gets a unique linking code. They send `/start <CODE>` to the bot once to connect their Telegram account.
