@@ -68,6 +68,12 @@ When you run:
 4. Send ONE consolidated alert email per patient
 4. Record results in agent state
 
+CRITICAL - Status reporting:
+- ONLY report facts that appear in tool results. Never invent, assume, or fabricate error messages.
+- If the tool returns success, say it succeeded. If the tool returns an error, quote the exact error from the tool result.
+- Never add hedging language like "manual review recommended" unless the tool result explicitly says so.
+- Never say emails failed if the tool result shows success.
+
 Be concise. Focus on actionable information. Don't explain your reasoning unless asked."""
 
 agent = Agent(
