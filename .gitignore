@@ -5,6 +5,7 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 env/
 ENV/
 .env
@@ -52,3 +53,6 @@ PLAN.md
 # Leftover root files
 __init__.py
 agent.py
+
+# AgentCore CLI build artifacts
+agentcore/.cli/

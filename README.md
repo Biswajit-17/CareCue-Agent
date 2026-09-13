@@ -7,8 +7,8 @@ CareCue tracks prescriptions, detects conflicts, monitors adherence, and sends T
 ### 1. Install dependencies
 
 ```bash
-python -m venv venv
-.\venv\Scripts\activate
+python -m venv .venv
+.\.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -99,6 +99,23 @@ Or run the full scheduler:
 python main.py --once
 ```
 
+## AgentCore Deployment (AWS)
+
+CareCue can also run on AWS AgentCore Runtime. The deployed agent uses the same tools but runs Bedrock Claude Haiku instead of OpenRouter Claude Sonnet.
+
+```bash
+# Local inspector testing
+agentcore dev
+
+# Deploy to AWS
+agentcore deploy
+
+# Test deployed agent
+agentcore invoke --prompt "Check refills for all patients"
+```
+
+Requires: `pyproject.toml` at project root, AWS credentials configured (`aws configure`), and Bedrock model access enabled for Claude Haiku in `us-east-1`.
+
 ## How Telegram Dose Confirmation Works
 
 ```
@@ -151,7 +168,8 @@ Drug class groupings in `data/drug_classes.json` are cross-checked against WHO A
 flowchart TB
     subgraph External["External Services"]
         direction LR
-        OR["OpenRouter<br/>LLM Provider<br/>(Claude Sonnet)"]
+        OR["OpenRouter<br/>LLM Provider<br/>(Claude Sonnet)<br/><i>local dev</i>"]
+        BED["AWS Bedrock<br/>LLM Provider<br/>(Claude Haiku)<br/><i>deployed</i>"]
         TG["Telegram Bot API<br/>Patient dose reminders<br/>& confirmation replies"]
         GMAIL["Gmail SMTP<br/>Caregiver email alerts"]
     end
@@ -221,6 +239,7 @@ flowchart TB
 
     %% Agent model provider
     CORE <-->|"LLM calls"| OR
+    CORE <-->|"LLM calls"| BED
 
     %% Tools use data layer
     T1 --> REPO
@@ -264,7 +283,7 @@ flowchart TB
     classDef frontend fill:#f5f5d5,stroke:#8e8e2d,stroke-width:2px,color:#1a1a2e
     classDef scheduler fill:#e0e0e0,stroke:#555,stroke-width:2px,color:#1a1a2e
 
-    class OR,TG,GMAIL external
+    class OR,BED,TG,GMAIL external
     class CORE,STATE,AGENT_MAIN agent
     class T1,T2,T3,T4,T5,T6 tools
     class REPO,DB,MODELS,SEED,DRUGS data
@@ -273,11 +292,11 @@ flowchart TB
     class SCHED scheduler
 ```
 
-> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram, webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer.*
+> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram, webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer. Local dev uses OpenRouter (Claude Sonnet); deployed agent uses AWS Bedrock (Claude Haiku).*
 
 | Layer | Technology | File |
 |-------|-----------|------|
-| Agent | Strands SDK + OpenRouter (Claude Sonnet) | `agent/core.py` |
+| Agent | Strands SDK + OpenRouter (local) / Bedrock Haiku (deployed) | `agent/core.py` |
 | Tools | refill_tracker, conflict_checker, dose_reminder_sender, notifier, dose_pattern_checker, refill_drafter | `tools/` |
 | Drug Reference | 15 WHO ATC-verified drug classes | `data/drug_classes.json` |
 | API | FastAPI + Telegram webhook | `ui/api.py` |

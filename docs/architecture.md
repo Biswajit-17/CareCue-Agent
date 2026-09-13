@@ -4,24 +4,25 @@
 flowchart TB
     subgraph External["External Services"]
         direction LR
-        OR["OpenRouter<br/>LLM Provider<br/>(Claude Sonnet)"]
+        OR["OpenRouter<br/>LLM Provider<br/>(Claude Sonnet)<br/><i>local dev</i>"]
+        BED["AWS Bedrock<br/>LLM Provider<br/>(Claude Haiku)<br/><i>deployed</i>"]
         TG["Telegram Bot API<br/>Patient dose reminders<br/>& confirmation replies"]
         GMAIL["Gmail SMTP<br/>Caregiver email alerts"]
     end
 
-    subgraph Scheduler["Scheduler — scheduler.py"]
+    subgraph Scheduler["Scheduler  -  scheduler.py"]
         direction LR
         SCHED["Daily: refill + conflict checks<br/>Hourly: dose reminders<br/>Every 15 min: no-response escalation"]
     end
 
-    subgraph Agent["Strands Agent — agent/"]
+    subgraph Agent["Strands Agent  -  agent/"]
         direction TB
         CORE["core.py<br/>Primary Agent<br/>Tool orchestration + dedup"]
         STATE["state.py<br/>Session state<br/>Run tracking"]
         AGENT_MAIN["agent_main.py<br/>Agent entry point"]
     end
 
-    subgraph Tools["Agent Tools — tools/"]
+    subgraph Tools["Agent Tools  -  tools/"]
         direction TB
         T1["refill_tracker<br/>Detect overdue/due-soon refills"]
         T2["conflict_checker<br/>Drug class overlap detection<br/>Uses data/drug_classes.json"]
@@ -35,7 +36,7 @@ flowchart TB
         DRUGS["data/drug_classes.json<br/>15 drug classes<br/>WHO ATC verified<br/>Indian brand names"]
     end
 
-    subgraph Data["Data Layer — data/"]
+    subgraph Data["Data Layer  -  data/"]
         direction TB
         REPO["repository.py<br/>SQLite CRUD<br/>Telegram linking methods"]
         DB[("carecue.db<br/>SQLite Database<br/>patients, prescriptions,<br/>dose_logs, tokens,<br/>linking_codes, alerts")]
@@ -43,7 +44,7 @@ flowchart TB
         SEED["seed.py + seed/*.json<br/>Indian-context test data"]
     end
 
-    subgraph API["API Layer — ui/api.py"]
+    subgraph API["API Layer  -  ui/api.py"]
         direction TB
         FASTAPI["FastAPI Server<br/>Port 8000"]
         REST["REST Endpoints<br/>patients, prescriptions,<br/>doctors, pharmacies,<br/>refills, dashboard"]
@@ -51,7 +52,7 @@ flowchart TB
         LINK["POST /api/patients/:id/telegram-link<br/>Generate linking code"]
     end
 
-    subgraph Frontend["Frontend — ui/static/"]
+    subgraph Frontend["Frontend  -  ui/static/"]
         direction LR
         HTML["index.html<br/>SPA shell"]
         CSS["styles.css<br/>Dark/light theme"]
@@ -74,6 +75,7 @@ flowchart TB
 
     %% Agent model provider
     CORE <-->|"LLM calls"| OR
+    CORE <-->|"LLM calls"| BED
 
     %% Tools use data layer
     T1 --> REPO
@@ -117,7 +119,7 @@ flowchart TB
     classDef frontend fill:#f5f5d5,stroke:#8e8e2d,stroke-width:2px,color:#1a1a2e
     classDef scheduler fill:#e0e0e0,stroke:#555,stroke-width:2px,color:#1a1a2e
 
-    class OR,TG,GMAIL external
+    class OR,BED,TG,GMAIL external
     class CORE,STATE,AGENT_MAIN agent
     class T1,T2,T3,T4,T5,T6 tools
     class REPO,DB,MODELS,SEED,DRUGS data
@@ -136,6 +138,7 @@ flowchart TB
 4. **conflict_checker** also reads `data/drug_classes.json` (15 WHO ATC-verified drug classes) for therapeutic overlap detection
 5. **notifier** sends caregiver alerts via Gmail SMTP
 6. **dose_reminder_sender** sends patient reminders via Telegram Bot API
-7. Patients reply YES/NO on Telegram → **webhook** receives the message → records dose log
-8. **No-response escalation** (every 15 min): if patient hasn't replied within 90 minutes, caregiver gets an informational email — calm tone, not alarming
+7. Patients reply YES/NO on Telegram -> **webhook** receives the message -> records dose log
+8. **No-response escalation** (every 15 min): if patient hasn't replied within 90 minutes, caregiver gets an informational email - calm tone, not alarming
 9. **FastAPI** serves the REST API and frontend dashboard independently, sharing the same data layer
+10. **AgentCore deployment** - deployed agent runs the same tools via Bedrock Claude Haiku on AWS, invoked via `agentcore invoke` or API endpoint; local dev uses OpenRouter Claude Sonnet
