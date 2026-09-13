@@ -40,7 +40,7 @@ app = BedrockAgentCoreApp()
 
 # Use Bedrock model - AWS credentials are available in AgentCore Runtime
 # Claude Sonnet 4: better accuracy, less hallucination than Haiku
-model = BedrockModel(model_id="us.anthropic.claude-sonnet-4-20250514-v1:0")
+model = BedrockModel(model_id="anthropic.claude-sonnet-4-20250514-v1:0")
 
 SYSTEM_PROMPT = """You are CareCue, a medication logistics agent for caregivers managing elderly parents' prescriptions.
 
