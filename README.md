@@ -118,7 +118,7 @@ agentcore deploy
 agentcore invoke --prompt "Check refills for all patients"
 ```
 
-Requires: `pyproject.toml` at project root, AWS credentials configured (`aws configure`), and Bedrock model access enabled for Claude Haiku in `us-east-1`.
+Requires: `pyproject.toml` at project root, AWS credentials configured (`aws configure`), and Bedrock model access enabled for Claude Sonnet in `us-east-1`.
 
 ## How Telegram Dose Confirmation Works
 
@@ -174,7 +174,7 @@ flowchart TB
     subgraph External["External Services"]
         direction LR
         OR["OpenRouter<br/>LLM Provider<br/>(Claude Sonnet)<br/><i>local dev</i>"]
-        BED["AWS Bedrock<br/>LLM Provider<br/>(Claude Haiku)<br/><i>deployed</i>"]
+        BED["AWS Bedrock<br/>LLM Provider<br/>(Claude Sonnet)<br/><i>deployed</i>"]
         TG["Telegram Bot API<br/>Patient dose reminders<br/>& confirmation replies"]
         GMAIL["Gmail SMTP<br/>Caregiver email alerts"]
     end
@@ -297,11 +297,11 @@ flowchart TB
     class SCHED scheduler
 ```
 
-> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram, webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer. Local dev uses OpenRouter (Claude Sonnet); deployed agent uses AWS Bedrock (Claude Haiku).*
+> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram, webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer. Local dev uses OpenRouter (Claude Sonnet); deployed agent uses AWS Bedrock (Claude Sonnet).*
 
 | Layer | Technology | File |
 |-------|-----------|------|
-| Agent | Strands SDK + OpenRouter (local) / Bedrock Haiku (deployed) | `agent/core.py` |
+| Agent | Strands SDK + OpenRouter (local) / Bedrock Sonnet (deployed) | `agent/core.py` |
 | Tools | refill_tracker, conflict_checker, dose_reminder_sender, notifier, dose_pattern_checker, refill_drafter | `tools/` |
 | Drug Reference | 15 WHO ATC-verified drug classes | `data/drug_classes.json` |
 | API | FastAPI + Telegram webhook | `ui/api.py` |
