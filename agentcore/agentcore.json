@@ -15,7 +15,11 @@
       "codeLocation": ".",
       "runtimeVersion": "PYTHON_3_13",
       "networkMode": "PUBLIC",
-      "protocol": "HTTP"
+      "protocol": "HTTP",
+      "envVars": [
+        { "name": "GMAIL_SMTP_USER", "value": "YOUR_GMAIL@gmail.com" },
+        { "name": "GMAIL_SMTP_APP_PASSWORD", "value": "YOUR_APP_PASSWORD" }
+      ]
     }
   ],
   "memories": [],
