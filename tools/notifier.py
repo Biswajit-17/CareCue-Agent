@@ -258,6 +258,27 @@ def _format_no_response_alert(patient_name: str, escalation_data: dict) -> tuple
     return subject, "\n".join(html_parts), "\n".join(text_parts)
 
 
+def _format_missed_dose_alert(patient_name: str, escalation_data: dict) -> tuple[str, str, str]:
+    """Format missed dose alert when patient reports NO."""
+    medication = escalation_data.get("medication", "medication")
+    scheduled_time = escalation_data.get("scheduled_time", "the scheduled time")
+    
+    subject = f"{patient_name} missed their {medication} dose"
+    
+    html_parts = [
+        f"<h2>{patient_name} missed their dose</h2>",
+        f"<p><strong>{patient_name}</strong> confirmed they did not take <strong>{medication}</strong> scheduled for <strong>{scheduled_time}</strong>.</p>",
+        "<p>No action needed from you right now — this is just a heads-up so you're aware.</p>",
+    ]
+    text_parts = [
+        f"{patient_name} missed their dose\n",
+        f"{patient_name} confirmed they did not take {medication} scheduled for {scheduled_time}.",
+        "No action needed from you right now - this is just a heads-up so you're aware.",
+    ]
+    
+    return subject, "\n".join(html_parts), "\n".join(text_parts)
+
+
 ALERT_FORMATTERS = {
     AlertType.REFILL_DUE: _format_refill_alert,
     AlertType.REFILL_OVERDUE: _format_refill_alert,
@@ -265,6 +286,7 @@ ALERT_FORMATTERS = {
     AlertType.DOSE_PATTERN: _format_dose_pattern_alert,
     AlertType.REFILL_DRAFTED: _format_refill_drafted_alert,
     AlertType.NO_RESPONSE: _format_no_response_alert,
+    AlertType.MISSED_DOSE: _format_missed_dose_alert,
 }
 
 

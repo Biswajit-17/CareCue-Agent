@@ -36,6 +36,7 @@ class AlertType(str, Enum):
     DOSE_PATTERN = "dose_pattern"
     REFILL_DRAFTED = "refill_drafted"
     NO_RESPONSE = "no_response"
+    MISSED_DOSE = "missed_dose"
 
 
 class AlertSeverity(str, Enum):

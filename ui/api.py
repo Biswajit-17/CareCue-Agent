@@ -745,6 +745,21 @@ async def telegram_webhook(request_body: dict):
         telegram_reply(chat_id, f"Thank you! Your dose of {rx.medication_name} {rx.strength} has been recorded.")
     else:
         telegram_reply(chat_id, f"Noted — {rx.medication_name} {rx.strength} marked as missed. Take care!")
+        
+        # Send missed dose alert to caregiver
+        try:
+            caregiver = repo.get_caregiver(patient.caregiver_id)
+            if caregiver and caregiver.email:
+                from tools.notifier import _send_email, _format_missed_dose_alert
+                medication = f"{rx.medication_name} {rx.strength}"
+                scheduled_str = token.scheduled_time.strftime("%I:%M %p on %B %d") if hasattr(token.scheduled_time, 'strftime') else str(token.scheduled_time)
+                subject, html_body, text_body = _format_missed_dose_alert(patient.name, {
+                    "medication": medication,
+                    "scheduled_time": scheduled_str,
+                })
+                _send_email(caregiver.email, subject, html_body, text_body)
+        except Exception as e:
+            print(f"[WEBHOOK] Failed to send missed dose alert: {e}")
 
     return {"ok": True}
 
