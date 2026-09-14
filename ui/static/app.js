@@ -963,13 +963,18 @@ function renderPatientPrescriptions(prescriptions, conflicts = []) {
                 conflictMap[id].push(c);
             });
         }
-        // Also match by generic_name if prescription_ids not available
-        if (c.affected_medications) {
-            c.affected_medications.forEach(med => {
-                prescriptions.forEach(rx => {
-                    if (rx.generic_name && rx.generic_name.toLowerCase() === med.toLowerCase()) {
-                        if (!conflictMap[rx.id]) conflictMap[rx.id] = [];
-                        if (!conflictMap[rx.id].includes(c)) conflictMap[rx.id].push(c);
+    });
+
+    // Build a map: prescription_id -> set of conflicting medication names
+    const conflictWithMap = {};
+    conflicts.forEach(c => {
+        if (c.prescription_ids) {
+            c.prescription_ids.forEach(id => {
+                if (!conflictWithMap[id]) conflictWithMap[id] = new Set();
+                c.prescription_ids.forEach(otherId => {
+                    if (otherId !== id) {
+                        const otherRx = prescriptions.find(p => p.id === otherId);
+                        if (otherRx) conflictWithMap[id].add(otherRx.medication_name);
                     }
                 });
             });
@@ -979,9 +984,10 @@ function renderPatientPrescriptions(prescriptions, conflicts = []) {
     container.innerHTML = prescriptions.map(rx => {
         const refill = getRefillStatus(rx);
         const rxConflicts = conflictMap[rx.id] || [];
+        const conflictingWith = conflictWithMap[rx.id] ? Array.from(conflictWithMap[rx.id]) : [];
         const conflictText = rxConflicts.map(c => plainConflictMessage(c)).join('; ');
-        const conflictBadge = rxConflicts.length > 0
-            ? `<span class="badge badge-conflict" title="${conflictText}" style="cursor:help;"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> ${rxConflicts.length} conflict${rxConflicts.length > 1 ? 's' : ''}</span>`
+        const conflictBadge = conflictingWith.length > 0
+            ? `<span class="badge badge-conflict" title="${conflictText}" style="cursor:help;"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Conflicts with ${conflictingWith.join(', ')}</span>`
             : '';
         return `
             <div class="list-item">
