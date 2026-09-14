@@ -245,6 +245,9 @@ function conflictTypeLabel(type) {
 function plainConflictMessage(c) {
     if (!c.message) return conflictTypeLabel(c.type);
     let msg = c.message;
+    // "Same generic ingredient 'X' prescribed as different brands: Y, Z by different doctors"
+    msg = msg.replace(/Same generic ingredient '(.+?)' prescribed as different brands: (.+?) by different doctors/i,
+        "Same medicine ($1) from different doctors");
     // "Duplicate generic 'X' prescribed by N doctors" → plain
     msg = msg.replace(/Duplicate generic '(.+?)' prescribed by (\d+) different doctor\(s\)/i,
         "Same medicine ($1) from $2 different doctors");
@@ -976,17 +979,18 @@ function renderPatientPrescriptions(prescriptions, conflicts = []) {
     container.innerHTML = prescriptions.map(rx => {
         const refill = getRefillStatus(rx);
         const rxConflicts = conflictMap[rx.id] || [];
+        const conflictText = rxConflicts.map(c => plainConflictMessage(c)).join('; ');
         const conflictBadge = rxConflicts.length > 0
-            ? `<span class="badge badge-conflict" title="${rxConflicts.map(c => plainConflictMessage(c)).join('; ')}"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Conflict</span>`
+            ? `<span class="badge badge-conflict" title="${conflictText}" style="cursor:help;"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> ${rxConflicts.length} conflict${rxConflicts.length > 1 ? 's' : ''}</span>`
             : '';
         return `
             <div class="list-item">
                 <div class="list-item-info">
                     <span class="list-item-title">${rx.medication_name} ${rx.strength}</span>
                     <span class="list-item-meta">${rx.dose_amount} ${rx.dose_unit} • ${rx.frequency} • ${rx.instructions || ''}</span>
-                    ${conflictBadge ? `<div style="margin-top:var(--sp-1);font-size:var(--text-small);color:var(--color-destructive);">${conflictBadge} ${rxConflicts.map(c => plainConflictMessage(c)).join('; ')}</div>` : ''}
                 </div>
                 <div class="list-item-actions">
+                    ${conflictBadge}
                     ${getStatusBadge(refill.status, refill.text)}
                     <span class="list-item-meta">Refills: ${rx.refills_remaining}/${rx.total_refills_allowed}</span>
                     <button class="btn btn-secondary btn-sm" onclick="editPrescription('${rx.id}')"><i data-lucide="edit-2" class="btn-icon"></i> Edit</button>
