@@ -12,7 +12,8 @@
 
 ```bash
 python -m venv .venv
-.\.venv\Scripts\activate
+source .venv/bin/activate        # Mac/Linux
+# .venv\Scripts\activate         # Windows
 pip install -r requirements.txt
 ```
 
@@ -28,9 +29,9 @@ pip install -r requirements.txt
 Copy `.env.example` to `.env` and fill in:
 
 ```env
-OPENROUTER_API_KEY="sk-or-v1-..."       # LLM provider
+OPENROUTER_API_KEY="sk-or-v1-..."       # LLM provider (https://openrouter.ai)
 GMAIL_SMTP_USER="you@gmail.com"         # Caregiver email alerts
-GMAIL_SMTP_APP_PASSWORD="xxxx"          # Gmail app password
+GMAIL_SMTP_APP_PASSWORD="xxxx"          # Gmail app password (https://myaccount.google.com/apppasswords)
 APP_URL="http://127.0.0.1:8000"         # Dashboard URL
 TELEGRAM_BOT_TOKEN="123456789:ABC..."   # From BotFather
 ```
@@ -41,13 +42,25 @@ TELEGRAM_BOT_TOKEN="123456789:ABC..."   # From BotFather
 python -m data.seed --reset
 ```
 
+You should see: `Seeded X records from ...` for each table, ending with `Database seeding complete!`
+
 ### 5. Start the server
 
 ```bash
 uvicorn ui.api:app --host 127.0.0.1 --port 8000
 ```
 
-### 6. Expose a public webhook URL (ngrok)
+Open `http://127.0.0.1:8000` in your browser to see the dashboard with 2 patients, 10 prescriptions, and 3 doctors.
+
+### 6. Run the agent (verify it works)
+
+```bash
+python main.py --once
+```
+
+This runs the full daily check (refills, conflicts, adherence) and prints a summary. No API keys needed for this step.
+
+### 7. Expose a public webhook URL (ngrok)
 
 Telegram needs a public HTTPS URL to deliver inbound messages.
 
@@ -58,7 +71,7 @@ ngrok http 8000
 
 Copy the `https://xxxx.ngrok-free.app` URL.
 
-### 7. Register the webhook with Telegram
+### 8. Register the webhook with Telegram
 
 ```bash
 curl "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://xxxx.ngrok-free.app/telegram/webhook"
@@ -66,7 +79,7 @@ curl "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://xxxx.n
 
 You should get: `{"ok":true,"result":...,"description":"Webhook was set"}`
 
-### 8. Link a patient to Telegram
+### 9. Link a patient to Telegram
 
 1. Open the dashboard at `http://127.0.0.1:8000`
 2. Go to Patients → select a patient → Manage Medications
@@ -78,26 +91,28 @@ You should get: `{"ok":true,"result":...,"description":"Webhook was set"}`
    to `@CareCueBot` (replace `A1B2C3D4` with the code shown)
 5. The bot replies: "Linked! You will now receive dose reminders for <Patient_name>."
 
-### 9. Test the flow
+### 10. Test the full flow
 
 1. Trigger a reminder (see below)
 2. The patient receives a Telegram message
 3. Reply YES or NO
-4. Check the dashboard, the DoseLog appears
+4. Check the dashboard - the DoseLog appears
 
 #### Trigger a reminder manually
+
+Requires a linked patient (step 9). Replace `<PATIENT_ID>` with a real ID from the dashboard:
 
 ```bash
 python -c "
 from tools.dose_reminder_sender import send_dose_reminder
 from datetime import datetime
 slot = datetime.now().replace(second=0, microsecond=0).isoformat()
-r = send_dose_reminder('01ARZ3NDEKTSV4RRFFQ69G5FB0', slot)
+r = send_dose_reminder('<PATIENT_ID>', slot)
 print(r)
 "
 ```
 
-Or run the full scheduler:
+Or run the full scheduler once (checks refills, conflicts, adherence, and sends emails):
 
 ```bash
 python main.py --once
@@ -345,12 +360,10 @@ python main.py --test-email you@example.com
 | GET/PUT/DELETE | `/api/doctors/{id}` | Doctor CRUD |
 | GET/POST | `/api/pharmacies` | List/create pharmacies |
 | GET/PUT/DELETE | `/api/pharmacies/{id}` | Pharmacy CRUD |
-| GET/POST | `/api/prescriptions` | List/create prescriptions |
+| GET/POST | `/api/prescriptions` | List/create prescriptions (includes refill tracking fields) |
 | GET/PUT/DELETE | `/api/prescriptions/{id}` | Prescription CRUD |
-| GET/POST | `/api/refills` | List/create refills |
-| PUT/DELETE | `/api/refills/{id}` | Refill update/delete |
-| GET | `/api/dashboard` | Dashboard data |
-| GET | `/api/medications` | All medications (cross-patient) |
+| GET | `/api/dashboard` | Dashboard summary |
+| GET | `/api/medications` | All medications across patients |
 | POST | `/telegram/webhook` | Telegram inbound webhook |
 
 ## Troubleshooting
