@@ -627,6 +627,21 @@ TAKEN_KEYWORDS = {"yes", "y", "taken", "done"}
 MISSED_KEYWORDS = {"no", "n", "not yet", "missed"}
 
 
+@app.get("/api/patients/{patient_id}/conflicts")
+async def get_patient_conflicts(patient_id: str):
+    """Get medication conflicts for a specific patient."""
+    patient = repo.get_patient(patient_id)
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    result = conflict_checker(patient_id)
+    return {
+        "patient_id": patient_id,
+        "patient_name": patient.name,
+        "conflicts_found": result["conflicts_found"],
+        "conflicts": result["conflicts"],
+    }
+
+
 @app.post("/api/patients/{patient_id}/telegram-link")
 async def generate_telegram_link(patient_id: str):
     """Generate a short linking code for a patient to connect their Telegram."""

@@ -873,15 +873,16 @@ async function loadPatientMeds() {
     showLoading('patient-meds-list', 'Loading medications...');
 
     try {
-        const [patient, prescriptions, availableDoctors, availablePharmacies] = await Promise.all([
+        const [patient, prescriptions, availableDoctors, availablePharmacies, conflictsData] = await Promise.all([
             apiRequest(`/patients/${pid}`),
             apiRequest(`/prescriptions?patient_id=${pid}`),
             apiRequest('/doctors'),
-            apiRequest(`/pharmacies?patient_id=${pid}`)
+            apiRequest(`/pharmacies?patient_id=${pid}`),
+            apiRequest(`/patients/${pid}/conflicts`)
         ]);
         document.getElementById('patient-meds-name').textContent = `Medications for ${patient.name}`;
         renderTelegramLinkSection(patient);
-        renderPatientPrescriptions(prescriptions);
+        renderPatientPrescriptions(prescriptions, conflictsData.conflicts || []);
         doctors = availableDoctors;
         pharmacies = availablePharmacies;
         initLucideIcons();
@@ -938,7 +939,7 @@ async function generateTelegramLink(patientId) {
     }
 }
 
-function renderPatientPrescriptions(prescriptions) {
+function renderPatientPrescriptions(prescriptions, conflicts = []) {
     currentPrescriptions = prescriptions || [];
     const container = document.getElementById('patient-meds-list');
     if (prescriptions.length === 0) {
@@ -949,13 +950,41 @@ function renderPatientPrescriptions(prescriptions) {
         );
         return;
     }
+
+    // Build a map: prescription_id -> list of conflicts
+    const conflictMap = {};
+    conflicts.forEach(c => {
+        if (c.prescription_ids) {
+            c.prescription_ids.forEach(id => {
+                if (!conflictMap[id]) conflictMap[id] = [];
+                conflictMap[id].push(c);
+            });
+        }
+        // Also match by generic_name if prescription_ids not available
+        if (c.affected_medications) {
+            c.affected_medications.forEach(med => {
+                prescriptions.forEach(rx => {
+                    if (rx.generic_name && rx.generic_name.toLowerCase() === med.toLowerCase()) {
+                        if (!conflictMap[rx.id]) conflictMap[rx.id] = [];
+                        if (!conflictMap[rx.id].includes(c)) conflictMap[rx.id].push(c);
+                    }
+                });
+            });
+        }
+    });
+
     container.innerHTML = prescriptions.map(rx => {
         const refill = getRefillStatus(rx);
+        const rxConflicts = conflictMap[rx.id] || [];
+        const conflictBadge = rxConflicts.length > 0
+            ? `<span class="badge badge-conflict" title="${rxConflicts.map(c => plainConflictMessage(c)).join('; ')}"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Conflict</span>`
+            : '';
         return `
             <div class="list-item">
                 <div class="list-item-info">
                     <span class="list-item-title">${rx.medication_name} ${rx.strength}</span>
                     <span class="list-item-meta">${rx.dose_amount} ${rx.dose_unit} • ${rx.frequency} • ${rx.instructions || ''}</span>
+                    ${conflictBadge ? `<div style="margin-top:var(--sp-1);font-size:var(--text-small);color:var(--color-destructive);">${conflictBadge} ${rxConflicts.map(c => plainConflictMessage(c)).join('; ')}</div>` : ''}
                 </div>
                 <div class="list-item-actions">
                     ${getStatusBadge(refill.status, refill.text)}
