@@ -843,8 +843,8 @@ function renderMedications() {
                     <span class="meds-patient-name" title="${escapeHtml(rx.patient_name)}">${escapeHtml(rx.patient_name)}</span>
                 </div>
                 <div class="list-item-info">
-                    <span class="list-item-title">${escapeHtml(rx.medication_name)} ${escapeHtml(rx.strength)}</span>
-                    <span class="list-item-meta">Dr. ${escapeHtml(doc)} • ${rx.dose_amount} ${escapeHtml(rx.dose_unit)} • ${escapeHtml(rx.frequency)}${rx.instructions ? ' • ' + escapeHtml(rx.instructions) : ''}</span>
+                    <span class="list-item-title">${escapeHtml(rx.medication_name)}</span>
+                    <span class="list-item-meta">${escapeHtml(rx.strength)} • Dr. ${escapeHtml(doc)} • ${rx.dose_amount} ${escapeHtml(rx.dose_unit)} • ${escapeHtml(rx.frequency)}${rx.instructions ? ' • ' + escapeHtml(rx.instructions) : ''}</span>
                 </div>
                 <div class="list-item-actions">
                     ${getStatusBadge(refill.status, refill.text)}
@@ -992,8 +992,8 @@ function renderPatientPrescriptions(prescriptions, conflicts = []) {
         return `
             <div class="list-item">
                 <div class="list-item-info">
-                    <span class="list-item-title">${rx.medication_name} ${rx.strength}</span>
-                    <span class="list-item-meta">${rx.dose_amount} ${rx.dose_unit} • ${rx.frequency} • ${rx.instructions || ''}</span>
+                    <span class="list-item-title">${rx.medication_name}</span>
+                    <span class="list-item-meta">${rx.strength} • ${rx.dose_amount} ${rx.dose_unit} • ${rx.frequency} • ${rx.instructions || ''}</span>
                 </div>
                 <div class="list-item-actions">
                     ${conflictBadge}
