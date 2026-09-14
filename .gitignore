@@ -46,6 +46,7 @@ build/
 check_*.py
 test_delete.py
 test_deploy.py
+demo_no_response.py
 
 # Project config (not needed in repo)
 opencode.json
