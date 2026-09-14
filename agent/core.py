@@ -27,16 +27,20 @@ from agent.state import get_agent_state
 def get_model():
     import os
     from dotenv import load_dotenv
+    from openai import OpenAI
     load_dotenv()
     
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         raise ValueError("OPENROUTER_API_KEY not set in environment")
     
-    return OpenAIModel(
-        model_id="anthropic/claude-sonnet-4",
+    client = OpenAI(
         api_key=api_key,
-        api_base="https://openrouter.ai/api/v1",
+        base_url="https://openrouter.ai/api/v1",
+    )
+    return OpenAIModel(
+        client=client,
+        model_id="nvidia/nemotron-3-super-120b-a12b:free",
     )
 
 

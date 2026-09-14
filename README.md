@@ -188,7 +188,7 @@ Drug class groupings in `data/drug_classes.json` are cross-checked against WHO A
 flowchart TB
     subgraph External["External Services"]
         direction LR
-        OR["OpenRouter<br/>LLM Provider<br/>(Claude Sonnet)<br/><i>local dev</i>"]
+        OR["OpenRouter<br/>LLM Provider<br/>(Nemotron 3 Super)<br/><i>local dev</i>"]
         BED["AWS Bedrock<br/>LLM Provider<br/>(Claude Haiku)<br/><i>deployed</i>"]
         TG["Telegram Bot API<br/>Patient dose reminders<br/>& confirmation replies"]
         GMAIL["Gmail SMTP<br/>Caregiver email alerts"]
@@ -312,11 +312,11 @@ flowchart TB
     class SCHED scheduler
 ```
 
-> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram, webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer. Local dev uses OpenRouter (Claude Sonnet); deployed agent uses AWS Bedrock (Claude Haiku).*
+> *Scheduler triggers the Strands Agent daily. Agent calls 6 tools to check refills, conflicts, adherence, and send notifications. Patients reply YES/NO on Telegram, webhook records the dose log. FastAPI serves the dashboard, sharing the same data layer. Local dev uses OpenRouter (Nemotron 3 Super); deployed agent uses AWS Bedrock (Claude Haiku).*
 
 | Layer | Technology | File |
 |-------|-----------|------|
-| Agent | Strands SDK + OpenRouter (local) / Bedrock Haiku (deployed) | `agent/core.py` |
+| Agent | Strands SDK + OpenRouter Nemotron (local) / Bedrock Haiku (deployed) | `agent/core.py` |
 | Tools | refill_tracker, conflict_checker, dose_reminder_sender, notifier, dose_pattern_checker, refill_drafter | `tools/` |
 | Drug Reference | 15 WHO ATC-verified drug classes | `data/drug_classes.json` |
 | API | FastAPI + Telegram webhook | `ui/api.py` |
