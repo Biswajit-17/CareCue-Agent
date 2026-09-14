@@ -19,7 +19,6 @@ flowchart TB
         direction TB
         CORE["core.py<br/>Primary Agent<br/>Tool orchestration + dedup"]
         STATE["state.py<br/>Session state<br/>Run tracking"]
-        AGENT_MAIN["agent_main.py<br/>Agent entry point"]
     end
 
     subgraph Tools["Agent Tools  -  tools/"]
@@ -120,7 +119,7 @@ flowchart TB
     classDef scheduler fill:#e0e0e0,stroke:#555,stroke-width:2px,color:#1a1a2e
 
     class OR,BED,TG,GMAIL external
-    class CORE,STATE,AGENT_MAIN agent
+    class CORE,STATE agent
     class T1,T2,T3,T4,T5,T6 tools
     class REPO,DB,MODELS,SEED,DRUGS data
     class FASTAPI,REST,WEBHOOK,LINK api
