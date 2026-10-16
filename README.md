@@ -118,22 +118,18 @@ Or run the full scheduler once (checks refills, conflicts, adherence, and sends 
 python main.py --once
 ```
 
-## AgentCore Deployment (AWS)
+## AgentCore Deployment (AWS) — retired after hackathon
 
-CareCue can also run on AWS AgentCore Runtime. The deployed agent uses the same tools but runs Bedrock Claude Haiku instead of OpenRouter Claude Sonnet.
-
-```bash
-# Local inspector testing
-agentcore dev
-
-# Deploy to AWS
-agentcore deploy
-
-# Test deployed agent
-agentcore invoke --prompt "Check refills for all patients"
-```
-
-Requires: `pyproject.toml` at project root, AWS credentials configured (`aws configure`), and Bedrock model access enabled for Claude Haiku in `us-east-1`.
+> The hackathon AWS deployment has been taken down (`agentcore remove agent`).
+> Offline / self-host is now the default: clone, `pip install -r requirements.txt`,
+> configure OpenRouter in `.env`, and follow Quick Start above. No AWS needed.
+>
+> Archived reference (was: Bedrock Claude Haiku via `app/carecue_agent/main.py`):
+> ```bash
+> agentcore dev
+> agentcore deploy
+> agentcore invoke --prompt "Check refills for all patients"
+> ```
 
 ## How Telegram Dose Confirmation Works
 
@@ -315,7 +311,7 @@ flowchart TB
 
 | Layer | Technology | File |
 |-------|-----------|------|
-| Agent | Strands SDK + OpenRouter Nemotron (local) / Bedrock Haiku (deployed) | `agent/core.py` |
+| Agent | Strands SDK + OpenRouter Nemotron (self-host default; Bedrock Haiku entrypoint in `app/` archived) | `agent/core.py` |
 | Tools | refill_tracker, conflict_checker, dose_reminder_sender, notifier, dose_pattern_checker, refill_drafter | `tools/` |
 | Drug Reference | 15 WHO ATC-verified drug classes | `data/drug_classes.json` |
 | API | FastAPI + Telegram webhook | `ui/api.py` |
